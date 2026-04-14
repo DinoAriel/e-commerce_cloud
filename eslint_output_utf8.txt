@@ -1,0 +1,13 @@
+﻿
+C:\Kuliah\Workshop Komputasi Awan\E-Commerce\aqua-market\src\pages\Auctionspage.jsx
+   68:8   warning  React Hook useEffect has a missing dependency: 'calc'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  110:12  error    'email' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+  110:19  error    'setEmail' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+  111:12  error    'subscribed' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+  111:24  error    'setSubscribed' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u            no-unused-vars
+
+C:\Kuliah\Workshop Komputasi Awan\E-Commerce\aqua-market\src\pages\HomePage.jsx
+  8:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+Γ£û 6 problems (5 errors, 1 warning)
+
