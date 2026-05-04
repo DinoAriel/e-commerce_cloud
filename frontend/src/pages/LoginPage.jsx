@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/'
   const [showPassword, setShowPassword] = useState(false)
   const [keepSigned, setKeepSigned] = useState(false)
   const [email, setEmail] = useState('')
@@ -13,7 +15,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
@@ -24,7 +26,7 @@ export default function LoginPage() {
     if (error) {
       alert(error.message)
     } else {
-      navigate('/')
+      navigate(redirectTo)
     }
   }
 
@@ -32,7 +34,7 @@ export default function LoginPage() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`
+        redirectTo: `${window.location.origin}${redirectTo}`
       }
     })
     if (error) {

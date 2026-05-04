@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAddToCart } from '../lib/useAddToCart'
 
 export default function ProductCard({ product }) {
+  const navigate = useNavigate()
+  const addToCart = useAddToCart()
   const [added, setAdded] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.stopPropagation()
+    await addToCart(product)
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
   }
@@ -15,18 +21,22 @@ export default function ProductCard({ product }) {
       .replace('IDR', 'Rp')
 
   return (
-    <div className="group bg-white rounded-3xl border border-gray-100 hover:border-primary-border hover:shadow-xl hover:shadow-primary/5 overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
+    <div
+      onClick={() => navigate(`/product/${product.id}`)}
+      className="group bg-white rounded-3xl border border-gray-100 hover:border-primary-border hover:shadow-xl hover:shadow-primary/5 overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
+    >
 
       {/* Image */}
       <div className="relative overflow-hidden aspect-[4/3] bg-primary-lighter">
         <img
-          src={product.image}
+          src={imgError ? '/images/discus.png' : (product.image || product.image_url)}
           alt={product.name}
+          onError={() => setImgError(true)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         {product.badge && (
           <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full
-            ${product.badge === 'Hot' ? 'bg-red-500 text-white' : ''}
+            ${product.badge === 'Hot' ? 'bg-orange-500 text-white' : ''}
             ${product.badge === 'Rare' ? 'bg-purple-600 text-white' : ''}
             ${product.badge === 'New' ? 'bg-green-500 text-white' : ''}
           `}>

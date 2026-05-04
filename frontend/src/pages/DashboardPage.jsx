@@ -1,29 +1,54 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/auth'
+import { getProducts, getCategories, getUserOrders } from '../lib/api'
 
-const stats = [
-  { label: 'Total Produk', value: '10', icon: '🐠', change: '+2 minggu ini', color: 'bg-blue-50 text-blue-600' },
-  { label: 'Total Kategori', value: '4', icon: '📂', change: 'Freshwater, Saltwater, Rare, Invertebrates', color: 'bg-purple-50 text-purple-600' },
-  { label: 'Total Pesanan', value: '0', icon: '📦', change: 'Belum ada pesanan', color: 'bg-amber-50 text-amber-600' },
-  { label: 'Pendapatan', value: 'Rp 0', icon: '💰', change: 'Mulai jual sekarang', color: 'bg-emerald-50 text-emerald-600' },
-]
-
-const recentProducts = [
-  { name: 'Discus Red Dragon', price: 'Rp 1.200.000', stock: 8, badge: 'Hot', image: '/images/discus.png' },
-  { name: 'Betta Halfmoon', price: 'Rp 150.000', stock: 30, badge: 'Hot', image: '/images/betta.png' },
-  { name: 'Flowerhorn', price: 'Rp 3.500.000', stock: 5, badge: 'Rare', image: '/images/flowerhorn.png' },
-  { name: 'Arowana Silver', price: 'Rp 5.000.000', stock: 2, badge: 'Rare', image: '/images/arowana.png' },
-  { name: 'Blue Tang', price: 'Rp 450.000', stock: 15, badge: null, image: '/images/blue-tang.avif' },
-]
-
-const quickActions = [
-  { label: 'Tambah Produk', path: '/', icon: '➕', desc: 'Buat listing produk baru' },
-  { label: 'Kelola Kategori', path: '/', icon: '🏷️', desc: 'Atur kategori ikan' },
-  { label: 'Lihat Pesanan', path: '/', icon: '📋', desc: 'Monitor pesanan masuk' },
-  { label: 'Laporan', path: '/', icon: '📊', desc: 'Analisis penjualan' },
-]
+const formatPrice = (price) => `Rp ${Number(price).toLocaleString('id-ID')}`
 
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const [stats, setStats] = useState([
+    { label: 'Total Produk', value: '...', icon: '🐠', change: 'Memuat...', color: 'bg-blue-50 text-blue-600' },
+    { label: 'Total Kategori', value: '...', icon: '📂', change: 'Memuat...', color: 'bg-purple-50 text-purple-600' },
+    { label: 'Total Pesanan', value: '...', icon: '📦', change: 'Memuat...', color: 'bg-amber-50 text-amber-600' },
+    { label: 'Pendapatan', value: '...', icon: '💰', change: 'Memuat...', color: 'bg-emerald-50 text-emerald-600' },
+  ])
+  const [recentProducts, setRecentProducts] = useState([])
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      getProducts({ limit: 10 }).catch(() => ({ products: [], total: 0 })),
+      getCategories().catch(() => []),
+      user ? getUserOrders(user.id).catch(() => []) : Promise.resolve([]),
+    ]).then(([productData, categories, orderData]) => {
+      const products = productData.products || []
+      const catCount = Array.isArray(categories) ? categories.length : 0
+      const orderList = Array.isArray(orderData) ? orderData : []
+      const totalRevenue = orderList
+        .filter(o => o.status === 'paid' || o.status === 'done')
+        .reduce((sum, o) => sum + o.total_amount, 0)
+
+      setStats([
+        { label: 'Total Produk', value: String(productData.total || products.length), icon: '🐠', change: `${catCount} kategori tersedia`, color: 'bg-blue-50 text-blue-600' },
+        { label: 'Total Kategori', value: String(catCount), icon: '📂', change: catCount > 0 ? 'Aktif' : 'Belum ada kategori', color: 'bg-purple-50 text-purple-600' },
+        { label: 'Total Pesanan', value: String(orderList.length), icon: '📦', change: orderList.length === 0 ? 'Belum ada pesanan' : `${orderList.filter(o => o.status === 'pending').length} menunggu`, color: 'bg-amber-50 text-amber-600' },
+        { label: 'Pendapatan', value: formatPrice(totalRevenue), icon: '💰', change: totalRevenue > 0 ? 'Dari pesanan selesai' : 'Mulai jual sekarang', color: 'bg-emerald-50 text-emerald-600' },
+      ])
+
+      setRecentProducts(products.slice(0, 5))
+      setOrders(orderList.slice(0, 5))
+    }).finally(() => setLoading(false))
+  }, [user])
+
+  const quickActions = [
+    { label: 'Tambah Produk', path: '/', icon: '➕', desc: 'Buat listing produk baru' },
+    { label: 'Kelola Kategori', path: '/', icon: '🏷️', desc: 'Atur kategori ikan' },
+    { label: 'Lihat Pesanan', path: '/', icon: '📋', desc: 'Monitor pesanan masuk' },
+    { label: 'Kembali ke Toko', path: '/', icon: '🏪', desc: 'Lihat storefront' },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -34,7 +59,7 @@ export default function DashboardPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-500 mt-1">Selamat datang kembali! Kelola toko AquaMarket Anda.</p>
+              <p className="text-gray-500 mt-1">Selamat datang kembali{user ? `, ${user.email}` : ''}! Kelola toko AquaMarket Anda.</p>
             </div>
             <button
               onClick={() => navigate('/')}
@@ -50,7 +75,11 @@ export default function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {stats.map((stat) => (
+          {loading ? (
+            <div className="col-span-full flex items-center justify-center py-10">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : stats.map((stat) => (
             <div key={stat.label} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:shadow-gray-100 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${stat.color}`}>
@@ -88,65 +117,71 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-50">
               <h2 className="text-lg font-bold text-gray-900">Produk Terbaru</h2>
-              <button className="text-sm text-primary font-semibold hover:text-primary-dark transition-colors">
+              <button onClick={() => navigate('/freshwater')} className="text-sm text-primary font-semibold hover:text-primary-dark transition-colors">
                 Lihat Semua →
               </button>
             </div>
-            <div className="divide-y divide-gray-50">
-              {recentProducts.map((product) => (
-                <div key={product.name} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
-                  <img src={product.image} alt={product.name} className="w-12 h-12 rounded-xl object-cover bg-gray-100" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-gray-900 text-sm truncate">{product.name}</h3>
-                      {product.badge && (
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${product.badge === 'Hot' ? 'bg-orange-500' : 'bg-purple-600'}`}>
-                          {product.badge}
-                        </span>
-                      )}
+            {recentProducts.length === 0 ? (
+              <div className="p-6 text-center text-gray-400 text-sm">Belum ada produk</div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {recentProducts.map((product) => (
+                  <div key={product.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                    <img src={product.image_url} alt={product.name} className="w-12 h-12 rounded-xl object-cover bg-gray-100" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate">{product.name}</h3>
+                        {product.badge && (
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${product.badge === 'Hot' ? 'bg-orange-500' : 'bg-purple-600'}`}>
+                            {product.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-400">{formatPrice(product.price)}</p>
                     </div>
-                    <p className="text-xs text-gray-400">{product.price}</p>
+                    <div className="text-right">
+                      <p className={`text-sm font-bold ${(product.stock || 0) <= 5 ? 'text-red-500' : 'text-emerald-600'}`}>
+                        {product.stock || 0}
+                      </p>
+                      <p className="text-[10px] text-gray-400">stok</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className={`text-sm font-bold ${product.stock <= 5 ? 'text-red-500' : 'text-emerald-600'}`}>
-                      {product.stock}
-                    </p>
-                    <p className="text-[10px] text-gray-400">stok</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Activity & Info */}
+          {/* Right Column */}
           <div className="space-y-6">
 
-            {/* Store Status */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Status Toko</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Frontend</span>
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Online
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Backend API</span>
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Online
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Database</span>
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Connected
-                  </span>
-                </div>
+            {/* Recent Orders */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b border-gray-50">
+                <h2 className="text-lg font-bold text-gray-900">Pesanan Terbaru</h2>
               </div>
+              {orders.length === 0 ? (
+                <div className="p-6 text-center text-gray-400 text-sm">Belum ada pesanan</div>
+              ) : (
+                <div className="divide-y divide-gray-50">
+                  {orders.map((order) => (
+                    <div key={order.id} className="p-4">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{order.id.slice(0, 8)}...</p>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          order.status === 'paid' ? 'bg-green-100 text-green-700' :
+                          order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                          order.status === 'done' ? 'bg-emerald-100 text-emerald-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">{formatPrice(order.total_amount)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* API Endpoints */}
@@ -166,14 +201,19 @@ export default function DashboardPage() {
                   <span className="text-gray-300 font-mono text-xs">/api/categories</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">PUT</span>
-                  <span className="text-gray-300 font-mono text-xs">/api/products/:id</span>
+                  <span className="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">POST</span>
+                  <span className="text-gray-300 font-mono text-xs">/api/cart</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold bg-red-500/20 text-red-400 px-2 py-0.5 rounded">DEL</span>
-                  <span className="text-gray-300 font-mono text-xs">/api/products/:id</span>
+                  <span className="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">POST</span>
+                  <span className="text-gray-300 font-mono text-xs">/api/orders</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">POST</span>
+                  <span className="text-gray-300 font-mono text-xs">/api/auctions/:id/bids</span>
                 </div>
               </div>
+              <p className="text-gray-500 text-xs mt-4">Go + Fiber backend di port 8080</p>
             </div>
 
           </div>

@@ -1,295 +1,198 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { addToCart } from '../store/cartSlice'
+import { useState, useEffect, useMemo } from 'react'
+import { getProducts } from '../lib/api'
+import CategoryPageLayout from '../components/CategoryPageLayout'
 
-const allFish = [
-  { id: 101, name: 'Discus Red Dragon', species: 'Symphysodon aequifasciatus', price: 1200000, badge: 'Hot', image: '/images/discus.png', type: 'Cichlid', color: 'red', temperament: 'Peaceful' },
-  { id: 102, name: 'Betta Halfmoon', species: 'Betta splendens', price: 150000, badge: 'Hot', image: '/images/betta.png', type: 'Anabantoid', color: 'blue', temperament: 'Aggressive' },
-  { id: 103, name: 'Flowerhorn', species: 'Hybrid Cichlid', price: 3500000, badge: 'Rare', image: '/images/flowerhorn.png', type: 'Cichlid', color: 'red', temperament: 'Aggressive' },
-  { id: 104, name: 'Arowana Silver', species: 'Osteoglossum bicirrhosum', price: 5000000, badge: 'Rare', image: '/images/arowana.png', type: 'Arowana', color: 'silver', temperament: 'Semi-Aggressive' },
-  { id: 105, name: 'Guppy Fancy', species: 'Poecilia reticulata', price: 25000, badge: null, image: '/images/discus.png', type: 'Livebearer', color: 'orange', temperament: 'Peaceful' },
-  { id: 106, name: 'Neon Tetra', species: 'Paracheirodon innesi', price: 8000, badge: null, image: '/images/betta.png', type: 'Tetra', color: 'blue', temperament: 'Peaceful' },
-  { id: 107, name: 'Oscar Tiger', species: 'Astronotus ocellatus', price: 250000, badge: 'Hot', image: '/images/flowerhorn.png', type: 'Cichlid', color: 'orange', temperament: 'Aggressive' },
-  { id: 108, name: 'Koi Kohaku', species: 'Cyprinus carpio', price: 750000, badge: null, image: '/images/arowana.png', type: 'Koi', color: 'red', temperament: 'Peaceful' },
-  { id: 109, name: 'Angelfish Freshwater', species: 'Pterophyllum scalare', price: 85000, badge: null, image: '/images/discus.png', type: 'Cichlid', color: 'silver', temperament: 'Semi-Aggressive' },
-]
-
-const ITEMS_PER_PAGE = 6
-const specieTypes = ['Cichlid', 'Anabantoid', 'Arowana', 'Livebearer', 'Tetra', 'Koi']
-const colorOptions = [
-  { name: 'red', hex: '#EF4444' },
-  { name: 'blue', hex: '#3B82F6' },
-  { name: 'orange', hex: '#F97316' },
-  { name: 'silver', hex: '#94A3B8' },
-]
-const temperaments = ['Peaceful', 'Semi-Aggressive', 'Aggressive']
-const sortOptions = ['Most Popular', 'Price: Low to High', 'Price: High to Low', 'Newest']
-
-const badgeColors = {
-  Hot: 'bg-orange-500',
-  Rare: 'bg-purple-600',
+const hero = {
+  bg: 'bg-gradient-to-br from-emerald-800 to-teal-900',
+  gradient: 'radial-gradient(ellipse at 70% 50%, #065f46 0%, transparent 60%), radial-gradient(ellipse at 30% 80%, #064e3b 0%, transparent 50%)',
+  waveColor: '#6ee7b7',
+  badgeBg: 'bg-emerald-500/80',
+  tag: 'Air Tawar Premium',
+  title: 'Freshwater Collection',
+  description: 'Koleksi ikan air tawar terlengkap — dari Discus eksotis, Betta langka, hingga Arowana premium. Semua dipilih langsung dari breeder terpercaya.',
+  unit: 'Ikan Air Tawar',
 }
 
+const theme = {
+  sidebarCard: 'bg-emerald-800',
+  sidebarAccent: 'text-emerald-400',
+  priceColor: 'text-emerald-700',
+  cartBtn: 'bg-emerald-700',
+  activePage: 'bg-emerald-700',
+  hoverBorder: 'hover:border-emerald-200 hover:shadow-emerald-500/5',
+}
+
+const speciesTypes = [
+  { label: 'Cichlid', keywords: ['cichlid', 'oscar', 'flowerhorn', 'angelfish'] },
+  { label: 'Betta', keywords: ['betta', 'splendens'] },
+  { label: 'Tetra', keywords: ['tetra', 'neon', 'cardinal'] },
+  { label: 'Guppy', keywords: ['guppy', 'guppies', 'poecilia'] },
+  { label: 'Arowana', keywords: ['arowana', 'dragon'] },
+  { label: 'Discus', keywords: ['discus', 'symphysodon'] },
+  { label: 'Gourami', keywords: ['gourami', 'paradise'] },
+  { label: 'Koi & Goldfish', keywords: ['koi', 'goldfish', 'carp'] },
+]
+
+const colorSwatches = [
+  { label: 'Blue', color: '#3B82F6', keywords: ['blue', 'azure', 'indigo', 'cobalt', 'sapphire'] },
+  { label: 'Yellow', color: '#EAB308', keywords: ['yellow', 'golden', 'gold', 'lemon'] },
+  { label: 'Orange', color: '#F97316', keywords: ['orange', 'fire', 'flame', 'rust', 'copper'] },
+  { label: 'Green', color: '#22C55E', keywords: ['green', 'emerald', 'jade', 'lime'] },
+  { label: 'Red', color: '#EF4444', keywords: ['red', 'crimson', 'cherry', 'ruby', 'scarlet'] },
+]
+
+const careLevelOptions = [
+  { label: 'Easy', badges: ['New', 'Aktif'] },
+  { label: 'Moderate', badges: ['Kuat', 'Hot'] },
+  { label: 'Difficult', badges: ['Rare', 'Langka'] },
+]
+
 export default function FreshwaterPage() {
-  const dispatch = useDispatch()
-  const [selectedTypes, setSelectedTypes] = useState([])
-  const [selectedColors, setSelectedColors] = useState([])
-  const [selectedTemperament, setSelectedTemperament] = useState(null)
-  const [sortBy, setSortBy] = useState('Most Popular')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [addedId, setAddedId] = useState(null)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selectedSpecies, setSelectedSpecies] = useState([])
+  const [selectedColor, setSelectedColor] = useState(null)
+  const [careLevel, setCareLevel] = useState('')
 
-  const toggleType = (type) => {
-    setSelectedTypes(prev =>
-      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-    )
-    setCurrentPage(1)
+  useEffect(() => {
+    getProducts({ category: 'freshwater', limit: 50 })
+      .then(data => setProducts(data.products || []))
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const toggleSpecies = (keywords) => {
+    setSelectedSpecies(prev => {
+      const key = keywords.join(',')
+      const exists = prev.some(s => s.join(',') === key)
+      return exists ? prev.filter(s => s.join(',') !== key) : [...prev, keywords]
+    })
   }
 
-  const toggleColor = (color) => {
-    setSelectedColors(prev =>
-      prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color]
-    )
-    setCurrentPage(1)
+  const clearFilters = () => {
+    setSelectedSpecies([])
+    setSelectedColor(null)
+    setCareLevel('')
   }
 
-  const handleAddToCart = (fish) => {
-    dispatch(addToCart({ ...fish, quantity: 1 }))
-    setAddedId(fish.id)
-    setTimeout(() => setAddedId(null), 1500)
-  }
+  const hasFilters = selectedSpecies.length > 0 || selectedColor || careLevel
 
-  // Filter
-  let filtered = allFish.filter(f => {
-    const typeOk = selectedTypes.length === 0 || selectedTypes.includes(f.type)
-    const colorOk = selectedColors.length === 0 || selectedColors.includes(f.color)
-    const tempOk = !selectedTemperament || f.temperament === selectedTemperament
-    return typeOk && colorOk && tempOk
-  })
+  const filterKey = `${selectedSpecies.map(s => s.join(',')).join('|')}|${selectedColor}|${careLevel}`
 
-  // Sort
-  if (sortBy === 'Price: Low to High') filtered = [...filtered].sort((a, b) => a.price - b.price)
-  if (sortBy === 'Price: High to Low') filtered = [...filtered].sort((a, b) => b.price - a.price)
+  const filterFn = useMemo(() => {
+    return (product) => {
+      const search = `${product.name || ''} ${product.species || ''} ${product.description || ''}`.toLowerCase()
 
-  // Pagination
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
-  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+      if (selectedSpecies.length > 0) {
+        const matches = selectedSpecies.some(keywords =>
+          keywords.some(kw => search.includes(kw))
+        )
+        if (!matches) return false
+      }
 
-  const formatPrice = (price) => `Rp ${price.toLocaleString('id-ID')}`
+      if (selectedColor) {
+        const swatch = colorSwatches.find(s => s.label === selectedColor)
+        if (swatch && swatch.keywords.length > 0) {
+          if (!swatch.keywords.some(kw => search.includes(kw))) return false
+        }
+      }
+
+      if (careLevel) {
+        const opt = careLevelOptions.find(o => o.label === careLevel)
+        if (opt && opt.badges.length > 0) {
+          if (!opt.badges.includes(product.badge)) return false
+        }
+      }
+
+      return true
+    }
+  }, [selectedSpecies, selectedColor, careLevel])
+
+  const sidebarExtra = (
+    <>
+      {/* Specie Type */}
+      <div className="mb-6">
+        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Specie Type</p>
+        <div className="space-y-2.5">
+          {speciesTypes.map(({ label, keywords }) => {
+            const key = keywords.join(',')
+            const checked = selectedSpecies.some(s => s.join(',') === key)
+            return (
+              <label key={key} className="flex items-center gap-2.5 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleSpecies(keywords)}
+                  className="w-4 h-4 rounded border-gray-300 accent-emerald-700"
+                />
+                <span className="text-sm text-gray-600 group-hover:text-emerald-700 transition-colors">{label}</span>
+              </label>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Vibrant Colors */}
+      <div className="mb-6">
+        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Vibrant Colors</p>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {colorSwatches.map(({ label, color }) => (
+            <button
+              key={label}
+              title={label}
+              onClick={() => setSelectedColor(selectedColor === label ? null : label)}
+              className={`w-7 h-7 rounded-full border-2 transition-all duration-200 ${
+                selectedColor === label ? 'border-emerald-700 scale-110 shadow-md' : 'border-gray-200 hover:border-gray-400'
+              }`}
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+        {selectedColor && (
+          <p className="text-[10px] text-gray-400 mt-2">Filtering: {selectedColor}</p>
+        )}
+      </div>
+
+      {/* Care Level */}
+      <div className="mb-6">
+        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Care Level</p>
+        <div className="space-y-2.5">
+          {careLevelOptions.map(({ label }) => (
+            <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
+              <input
+                type="radio"
+                name="careLevel"
+                checked={careLevel === label}
+                onChange={() => setCareLevel(careLevel === label ? '' : label)}
+                className="w-4 h-4 accent-emerald-700"
+              />
+              <span className="text-sm text-gray-600 group-hover:text-emerald-700 transition-colors">{label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Clear Filters */}
+      {hasFilters && (
+        <button
+          onClick={clearFilters}
+          className="text-xs text-emerald-700 font-semibold hover:underline mb-6 block"
+        >
+          Clear all filters
+        </button>
+      )}
+    </>
+  )
 
   return (
-    <div className="min-h-screen bg-white">
-
-      {/* Hero Banner */}
-      <div className="relative mx-4 md:mx-8 mt-4 rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-800 to-teal-900 min-h-[220px] md:min-h-[280px] flex items-end p-8 md:p-12">
-        <div className="absolute inset-0 opacity-30"
-          style={{ background: 'radial-gradient(ellipse at 70% 50%, #065f46 0%, transparent 60%), radial-gradient(ellipse at 30% 80%, #064e3b 0%, transparent 50%)' }} />
-        {/* Decorative plant/leaf lines */}
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice">
-          {[0, 40, 80, 120, 160].map((offset, i) => (
-            <path key={i} d={`M0 ${100 + offset} Q200 ${60 + offset} 400 ${100 + offset} T800 ${100 + offset}`}
-              fill="none" stroke="#6ee7b7" strokeWidth="1.5" />
-          ))}
-        </svg>
-        <div className="relative z-10 max-w-xl">
-          <span className="inline-block bg-emerald-500/80 text-white text-xs font-bold px-4 py-1.5 rounded-full mb-4 tracking-widest uppercase">
-            Air Tawar Premium
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
-            Freshwater<br />Collection
-          </h1>
-          <p className="text-white/70 text-sm md:text-base leading-relaxed">
-            Koleksi ikan air tawar terlengkap — dari Discus eksotis, Betta langka, 
-            hingga Arowana premium. Semua dipilih langsung dari breeder terpercaya.
-          </p>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex gap-8 px-4 md:px-8 py-10">
-
-        {/* Sidebar Filter */}
-        <aside className="hidden md:block w-52 shrink-0">
-          <div className="flex items-center gap-2 mb-6">
-            <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 010 2H4a1 1 0 01-1-1zM6 12a1 1 0 011-1h10a1 1 0 010 2H7a1 1 0 01-1-1zM9 19a1 1 0 011-1h4a1 1 0 010 2h-4a1 1 0 01-1-1z" />
-            </svg>
-            <span className="font-bold text-dark text-sm">Filter Results</span>
-          </div>
-
-          {/* Specie Type */}
-          <div className="mb-6">
-            <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Jenis Ikan</p>
-            <div className="space-y-2.5">
-              {specieTypes.map(type => (
-                <label key={type} className="flex items-center gap-2.5 cursor-pointer group">
-                  <div
-                    onClick={() => toggleType(type)}
-                    className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all
-                      ${selectedTypes.includes(type) ? 'bg-emerald-600 border-emerald-600' : 'border-gray-300 group-hover:border-gray-500'}`}
-                  >
-                    {selectedTypes.includes(type) && (
-                      <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-sm text-gray-600 group-hover:text-dark transition-colors">{type}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Colors */}
-          <div className="mb-6">
-            <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Warna</p>
-            <div className="flex gap-2 flex-wrap">
-              {colorOptions.map(c => (
-                <button
-                  key={c.name}
-                  onClick={() => toggleColor(c.name)}
-                  className={`w-7 h-7 rounded-full transition-all border-2 ${selectedColors.includes(c.name) ? 'border-dark scale-110' : 'border-transparent'}`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Temperament */}
-          <div className="mb-8">
-            <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Temperamen</p>
-            <div className="space-y-2">
-              {temperaments.map(t => (
-                <button
-                  key={t}
-                  onClick={() => setSelectedTemperament(selectedTemperament === t ? null : t)}
-                  className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-all
-                    ${selectedTemperament === t ? 'bg-emerald-700 text-white font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Info Card */}
-          <div className="bg-emerald-800 rounded-2xl p-4 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <p className="font-bold text-sm">DOA Guarantee</p>
-            </div>
-            <p className="text-white/60 text-xs leading-relaxed mb-3">
-              Garansi ikan sampai tujuan dalam keadaan sehat atau uang kembali.
-            </p>
-            <button className="text-emerald-400 text-xs font-semibold hover:text-emerald-300 transition-colors">
-              Pelajari →
-            </button>
-          </div>
-        </aside>
-
-        {/* Products */}
-        <div className="flex-1 min-w-0">
-          {/* Top bar */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-gray-500">
-              Menampilkan <span className="font-bold text-dark">{filtered.length} Ikan Air Tawar</span>
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Urutkan:</span>
-              <select
-                value={sortBy}
-                onChange={e => { setSortBy(e.target.value); setCurrentPage(1) }}
-                className="text-sm font-semibold text-dark bg-transparent border-none outline-none cursor-pointer"
-              >
-                {sortOptions.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginated.map(fish => (
-              <div key={fish.id} className="group bg-white border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 rounded-2xl overflow-hidden transition-all duration-300">
-                <div className="relative aspect-square bg-gray-50 overflow-hidden">
-                  <img
-                    src={fish.image}
-                    alt={fish.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {fish.badge && (
-                    <span className={`absolute top-3 left-3 ${badgeColors[fish.badge]} text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide`}>
-                      {fish.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-gray-400 italic mb-0.5">{fish.species}</p>
-                  <h3 className="font-bold text-dark text-base">{fish.name}</h3>
-                  <div className="flex items-center justify-between mt-3">
-                    <p className="text-lg font-bold text-emerald-700">
-                      {formatPrice(fish.price)}
-                    </p>
-                    <button
-                      onClick={() => handleAddToCart(fish)}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 active:scale-90
-                        ${addedId === fish.id ? 'bg-green-500 text-white' : 'bg-emerald-700 text-white hover:bg-emerald-800'}`}
-                    >
-                      {addedId === fish.id ? (
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-10">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 disabled:opacity-30 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-
-              {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map(p => (
-                <button
-                  key={p}
-                  onClick={() => setCurrentPage(p)}
-                  className={`w-9 h-9 rounded-xl text-sm font-medium transition-all
-                    ${currentPage === p ? 'bg-emerald-700 text-white' : 'border border-gray-200 text-gray-600 hover:border-gray-400'}`}
-                >
-                  {p}
-                </button>
-              ))}
-
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 disabled:opacity-30 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <CategoryPageLayout
+      products={products}
+      loading={loading}
+      hero={hero}
+      theme={theme}
+      sidebarExtra={sidebarExtra}
+      filterFn={filterFn}
+      filterKey={filterKey}
+    />
   )
 }
