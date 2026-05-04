@@ -24,16 +24,16 @@ e-commerce_cloud/
 │   └── types/             # TypeScript type definitions
 │
 ├── frontend/              # React + Vite SPA
-│   ├── src/
-│   │   ├── components/    # Navbar, Footer, ProductCard
-│   │   ├── pages/         # Halaman-halaman aplikasi
-│   │   ├── sections/      # Section komponen homepage
-│   │   ├── store/         # Redux store & cart slice
-│   │   ├── data/          # Static data produk
-│   │   └── lib/           # Supabase client
-│   └── public/            # Assets & gambar produk
-│
-└── CLAUDE.md              # AI assistant documentation
+   ├── src/
+   │   ├── components/    # Navbar, Footer, ProductCard
+   │   ├── pages/         # Halaman-halaman aplikasi
+   │   ├── sections/      # Section komponen homepage
+   │   ├── store/         # Redux store & cart slice
+   │   ├── data/          # Static data produk
+   │   └── lib/           # Supabase client
+   └── public/            # Assets & gambar produk
+
+
 ```
 
 ## Fitur
