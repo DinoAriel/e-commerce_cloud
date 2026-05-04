@@ -1,0 +1,13 @@
+.env
+
+*.exe
+server
+main
+
+vendor/
+
+*.out
+*.test
+coverage.html
+
+.DS_Store
