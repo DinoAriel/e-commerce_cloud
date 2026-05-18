@@ -38,11 +38,20 @@ supabase.auth.onAuthStateChange((_event, session) => {
 
 async function request(url, options = {}) {
   const headers = await getAuthHeaders()
+  
+  console.log(`[Cek Request ${url}] Headers yang dikirim:`, headers) 
+  
   const res = await fetch(`${BASE}${url}`, {
     ...options,
     headers: { ...headers, ...options.headers },
   })
+  
   const json = await res.json()
+  
+  if (!res.ok) {
+    console.error(`[Error API ${url}] Status:`, res.status, 'Response:', json);
+  }
+
   if (!json.success) throw new Error(json.error || 'Terjadi kesalahan')
   return json.data
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/middleware"
 	"backend/models"
+	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -60,6 +61,7 @@ func (h *ProductHandler) GetProducts(c *fiber.Ctx) error {
 
 	rows, err := h.DB.Query(c.Context(), query, categoryVal, searchVal, badgeVal, activeBool, limit, offset)
 	if err != nil {
+		fmt.Println("Error GetProducts Query:", err)
 		return models.Error(c, "Gagal mengambil produk", 500)
 	}
 	defer rows.Close()

@@ -12,7 +12,11 @@ import (
 )
 
 func main() {
-	godotenv.Load()
+	
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Peringatan: File .env tidak ditemukan, menggunakan env system")
+	}
 
 	cfg := config.Load()
 
@@ -32,8 +36,20 @@ func main() {
 		},
 	})
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Status(200).JSON(fiber.Map{
+			"success": true,
+			"message": "API Backend Golang Berhasil Dijalankan!",
+			"status":  "Active",
+		})
+	})
+
 	routes.Setup(app, pool, cfg)
 
+	address := fmt.Sprintf(":%s", cfg.Port)
 	fmt.Printf("Server berjalan di http://localhost:%s\n", cfg.Port)
-	log.Fatal(app.Listen(":" + cfg.Port))
+	
+	if err := app.Listen(address); err != nil {
+		log.Fatalf("Gagal menjalankan server: %v", err)
+	}
 }

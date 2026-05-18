@@ -1,11 +1,17 @@
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-
+import { clearCart } from '../store/cartSlice'
+import { useAuth } from '../lib/auth'
+import { createOrder } from '../lib/api'
 export default function CheckoutPage() {
   const items = useSelector(state => state.cart.items)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [address, setAddress] = useState('')
+  const [error, setError] = useState(null)
 
   const totalPrice = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
 
@@ -13,13 +19,26 @@ export default function CheckoutPage() {
     return price.toLocaleString('id-ID')
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setTimeout(() => {
+    setError(null)
+    
+    try {
+      if (user) {
+        await createOrder({
+          user_id: user.id,
+          shipping_address: address || 'Alamat Default'
+        })
+      }
+      dispatch(clearCart())
       alert("Pembayaran Berhasil! Pesanan Anda sedang diproses.")
       navigate('/')
-    }, 1500)
+    } catch (err) {
+      setError(err.message || 'Terjadi kesalahan saat memproses pesanan')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (items.length === 0) {
@@ -42,6 +61,12 @@ export default function CheckoutPage() {
           <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] p-8 shadow-sm border border-primary-border">
             <h2 className="text-xl font-bold text-dark mb-6 border-b border-gray-100 pb-4">Informasi Pengiriman</h2>
             
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-3 text-red-500 text-sm">
+                {error}
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
@@ -55,7 +80,14 @@ export default function CheckoutPage() {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap</label>
-              <textarea required rows="3" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Jl. Sudirman No. 123..."></textarea>
+              <textarea 
+                required 
+                rows="3" 
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" 
+                placeholder="Jl. Sudirman No. 123..."
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              ></textarea>
             </div>
 
             <h2 className="text-xl font-bold text-dark mb-6 mt-10 border-b border-gray-100 pb-4">Metode Pembayaran</h2>
