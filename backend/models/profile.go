@@ -8,6 +8,7 @@ type Profile struct {
 	Phone     *string   `json:"phone"`
 	Address   *string   `json:"address"`
 	AvatarURL *string   `json:"avatar_url"`
+	Role      *string   `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

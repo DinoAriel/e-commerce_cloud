@@ -150,6 +150,12 @@ export default function Navbar() {
                       Dashboard
                     </button>
                     <button
+                      onClick={() => { setProfileOpen(false); navigate('/admin') }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-blue-600 font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Admin Dashboard
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                     >

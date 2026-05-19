@@ -39,6 +39,7 @@ CREATE TABLE profiles (
     avatar_url TEXT,
     phone_number TEXT,
     address TEXT,
+    role TEXT DEFAULT 'buyer',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -119,3 +120,26 @@ SELECT
     'Pterois volitans', 'Lionfish', 850000, 'Ikan predator air laut yang elegan dan berbahaya.', '/images/lionfish.png', 'Rare', c.id, 5, true
 FROM categories c WHERE c.slug = 'rare';
 
+
+-- Trigger to automatically create a profile when a new user signs up
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, role)
+  VALUES (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'full_name', ''),
+    'buyer'
+  );
+  RETURN new;
+END;
+$$;
+
+-- Drop trigger if exists and create it
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

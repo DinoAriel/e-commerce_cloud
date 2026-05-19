@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
 import GuestRoute from './components/GuestRoute'
+import AdminRoute from './components/AdminRoute'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage'
@@ -15,15 +16,26 @@ import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
 
+// Admin Pages and Layout
+import AdminLayout from './components/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminStock from './pages/admin/AdminStock'
+import AdminAuctions from './pages/admin/AdminAuctions'
+import AdminOrders from './pages/admin/AdminOrders'
+import AdminMessages from './pages/admin/AdminMessages'
+
 const AUTH_ROUTES = ['/login', '/signup']
 
 function AppLayout() {
   const location = useLocation()
   const isAuthPage = AUTH_ROUTES.includes(location.pathname)
+  const isAdminPage = location.pathname.startsWith('/admin')
+
+  const showHeaderFooter = !isAuthPage && !isAdminPage
 
   return (
     <>
-      {!isAuthPage && <Navbar />}
+      {showHeaderFooter && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/freshwater" element={<FreshwaterPage />} />
@@ -36,8 +48,18 @@ function AppLayout() {
         <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="stock" element={<AdminStock />} />
+          <Route path="auctions" element={<AdminAuctions />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="messages" element={<AdminMessages />} />
+        </Route>
       </Routes>
-      {!isAuthPage && <Footer />}
+      {showHeaderFooter && <Footer />}
     </>
   )
 }

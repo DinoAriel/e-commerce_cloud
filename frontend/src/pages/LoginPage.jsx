@@ -21,11 +21,30 @@ export default function LoginPage() {
       password: password,
     })
 
-    setLoading(false)
-
     if (error) {
+      setLoading(false)
       alert(error.message)
-    } else {
+      return
+    }
+
+    try {
+      // Ambil profile untuk cek role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      setLoading(false)
+
+      if (profile && profile.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate(redirectTo)
+      }
+    } catch (err) {
+      console.error('Error checking user role:', err)
+      setLoading(false)
       navigate(redirectTo)
     }
   }
