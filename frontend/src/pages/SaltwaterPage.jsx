@@ -3,10 +3,10 @@ import { getProducts } from '../lib/api'
 import CategoryPageLayout from '../components/CategoryPageLayout'
 
 const hero = {
-  bg: 'bg-gradient-to-br from-[#0A4D68] to-[#1E6BA8]',
-  gradient: 'radial-gradient(ellipse at 70% 50%, #1E6BA8 0%, transparent 60%), radial-gradient(ellipse at 30% 80%, #0A4D68 0%, transparent 50%)',
-  waveColor: '#89d4ff',
-  badgeBg: 'bg-teal-500/80',
+  bg: 'bg-gradient-to-b from-[#021d30] to-slate-950',
+  gradient: 'radial-gradient(circle at 75% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 60%)',
+  waveColor: '#06b6d4',
+  badgeBg: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 backdrop-blur-sm',
   tag: 'Ikan Laut Premium',
   title: 'Saltwater Collection',
   description: 'Jelajahi galeri spesies laut eksotis kami. Dari Clownfish ikonis hingga Pacific Tangs paling langka, setiap spesimen dirawat secara profesional.',
@@ -14,12 +14,12 @@ const hero = {
 }
 
 const theme = {
-  sidebarCard: 'bg-[#0A4D68]',
+  sidebarCard: 'bg-slate-900 border border-slate-800',
   sidebarAccent: 'text-teal-400',
-  priceColor: 'text-[#0A4D68]',
-  cartBtn: 'bg-[#0A4D68]',
-  activePage: 'bg-[#0A4D68]',
-  hoverBorder: 'hover:border-[#0A4D68]/30 hover:shadow-[#0A4D68]/5',
+  priceColor: 'text-teal-400',
+  cartBtn: 'bg-teal-600 hover:bg-teal-500',
+  activePage: 'bg-teal-600',
+  hoverBorder: 'hover:border-teal-500/50 hover:shadow-cyan-950/20',
 }
 
 const speciesTypes = [
@@ -110,7 +110,7 @@ export default function SaltwaterPage() {
     <>
       {/* Specie Type */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Specie Type</p>
+        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Specie Type</p>
         <div className="space-y-2.5">
           {speciesTypes.map(({ label, keywords }) => {
             const key = keywords.join(',')
@@ -121,9 +121,9 @@ export default function SaltwaterPage() {
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleSpecies(keywords)}
-                  className="w-4 h-4 rounded border-gray-300 accent-[#0A4D68]"
+                  className="w-4 h-4 rounded border-slate-800 accent-teal-600 bg-slate-900"
                 />
-                <span className="text-sm text-gray-600 group-hover:text-[#0A4D68] transition-colors">{label}</span>
+                <span className="text-sm text-slate-300 group-hover:text-teal-400 transition-colors">{label}</span>
               </label>
             )
           })}
@@ -132,7 +132,7 @@ export default function SaltwaterPage() {
 
       {/* Vibrant Colors */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Vibrant Colors</p>
+        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Vibrant Colors</p>
         <div className="flex items-center gap-2.5 flex-wrap">
           {colorSwatches.map(({ label, color }) => (
             <button
@@ -140,20 +140,20 @@ export default function SaltwaterPage() {
               title={label}
               onClick={() => setSelectedColor(selectedColor === label ? null : label)}
               className={`w-7 h-7 rounded-full border-2 transition-all duration-200 ${
-                selectedColor === label ? 'border-[#0A4D68] scale-110 shadow-md' : 'border-gray-200 hover:border-gray-400'
+                selectedColor === label ? 'border-teal-500 scale-110 shadow-md' : 'border-slate-800 hover:border-slate-600'
               }`}
               style={{ backgroundColor: color }}
             />
           ))}
         </div>
         {selectedColor && (
-          <p className="text-[10px] text-gray-400 mt-2">Filtering: {selectedColor}</p>
+          <p className="text-[10px] text-slate-400 mt-2">Filtering: {selectedColor}</p>
         )}
       </div>
 
       {/* Temperament */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Temperament</p>
+        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Temperament</p>
         <div className="space-y-2.5">
           {temperamentOptions.map(({ label }) => (
             <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
@@ -162,9 +162,9 @@ export default function SaltwaterPage() {
                 name="temperament"
                 checked={temperament === label}
                 onChange={() => setTemperament(temperament === label ? '' : label)}
-                className="w-4 h-4 accent-[#0A4D68]"
+                className="w-4 h-4 accent-teal-600 bg-slate-900"
               />
-              <span className="text-sm text-gray-600 group-hover:text-[#0A4D68] transition-colors">{label}</span>
+              <span className="text-sm text-slate-300 group-hover:text-teal-400 transition-colors">{label}</span>
             </label>
           ))}
         </div>
@@ -174,7 +174,7 @@ export default function SaltwaterPage() {
       {hasFilters && (
         <button
           onClick={clearFilters}
-          className="text-xs text-[#0A4D68] font-semibold hover:underline mb-6 block"
+          className="text-xs text-teal-400 font-semibold hover:underline mb-6 block"
         >
           Clear all filters
         </button>

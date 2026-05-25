@@ -3,10 +3,10 @@ import { getProducts } from '../lib/api'
 import CategoryPageLayout from '../components/CategoryPageLayout'
 
 const hero = {
-  bg: 'bg-gradient-to-br from-emerald-800 to-teal-900',
-  gradient: 'radial-gradient(ellipse at 70% 50%, #065f46 0%, transparent 60%), radial-gradient(ellipse at 30% 80%, #064e3b 0%, transparent 50%)',
-  waveColor: '#6ee7b7',
-  badgeBg: 'bg-emerald-500/80',
+  bg: 'bg-gradient-to-b from-[#02231c] to-slate-950',
+  gradient: 'radial-gradient(circle at 75% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 60%)',
+  waveColor: '#10b981',
+  badgeBg: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 backdrop-blur-sm',
   tag: 'Air Tawar Premium',
   title: 'Freshwater Collection',
   description: 'Koleksi ikan air tawar terlengkap — dari Discus eksotis, Betta langka, hingga Arowana premium. Semua dipilih langsung dari breeder terpercaya.',
@@ -14,12 +14,12 @@ const hero = {
 }
 
 const theme = {
-  sidebarCard: 'bg-emerald-800',
+  sidebarCard: 'bg-slate-900 border border-slate-800',
   sidebarAccent: 'text-emerald-400',
-  priceColor: 'text-emerald-700',
-  cartBtn: 'bg-emerald-700',
-  activePage: 'bg-emerald-700',
-  hoverBorder: 'hover:border-emerald-200 hover:shadow-emerald-500/5',
+  priceColor: 'text-emerald-400',
+  cartBtn: 'bg-emerald-600 hover:bg-emerald-500',
+  activePage: 'bg-emerald-600',
+  hoverBorder: 'hover:border-emerald-500/50 hover:shadow-emerald-950/20',
 }
 
 const speciesTypes = [
@@ -112,7 +112,7 @@ export default function FreshwaterPage() {
     <>
       {/* Specie Type */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Specie Type</p>
+        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Specie Type</p>
         <div className="space-y-2.5">
           {speciesTypes.map(({ label, keywords }) => {
             const key = keywords.join(',')
@@ -123,9 +123,9 @@ export default function FreshwaterPage() {
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleSpecies(keywords)}
-                  className="w-4 h-4 rounded border-gray-300 accent-emerald-700"
+                  className="w-4 h-4 rounded border-slate-800 accent-emerald-600 bg-slate-900"
                 />
-                <span className="text-sm text-gray-600 group-hover:text-emerald-700 transition-colors">{label}</span>
+                <span className="text-sm text-slate-300 group-hover:text-emerald-400 transition-colors">{label}</span>
               </label>
             )
           })}
@@ -134,7 +134,7 @@ export default function FreshwaterPage() {
 
       {/* Vibrant Colors */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Vibrant Colors</p>
+        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Vibrant Colors</p>
         <div className="flex items-center gap-2.5 flex-wrap">
           {colorSwatches.map(({ label, color }) => (
             <button
@@ -142,20 +142,20 @@ export default function FreshwaterPage() {
               title={label}
               onClick={() => setSelectedColor(selectedColor === label ? null : label)}
               className={`w-7 h-7 rounded-full border-2 transition-all duration-200 ${
-                selectedColor === label ? 'border-emerald-700 scale-110 shadow-md' : 'border-gray-200 hover:border-gray-400'
+                selectedColor === label ? 'border-emerald-500 scale-110 shadow-md' : 'border-slate-800 hover:border-slate-600'
               }`}
               style={{ backgroundColor: color }}
             />
           ))}
         </div>
         {selectedColor && (
-          <p className="text-[10px] text-gray-400 mt-2">Filtering: {selectedColor}</p>
+          <p className="text-[10px] text-slate-400 mt-2">Filtering: {selectedColor}</p>
         )}
       </div>
 
       {/* Care Level */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Care Level</p>
+        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Care Level</p>
         <div className="space-y-2.5">
           {careLevelOptions.map(({ label }) => (
             <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
@@ -164,9 +164,9 @@ export default function FreshwaterPage() {
                 name="careLevel"
                 checked={careLevel === label}
                 onChange={() => setCareLevel(careLevel === label ? '' : label)}
-                className="w-4 h-4 accent-emerald-700"
+                className="w-4 h-4 accent-emerald-600 bg-slate-900"
               />
-              <span className="text-sm text-gray-600 group-hover:text-emerald-700 transition-colors">{label}</span>
+              <span className="text-sm text-slate-300 group-hover:text-emerald-400 transition-colors">{label}</span>
             </label>
           ))}
         </div>
@@ -176,7 +176,7 @@ export default function FreshwaterPage() {
       {hasFilters && (
         <button
           onClick={clearFilters}
-          className="text-xs text-emerald-700 font-semibold hover:underline mb-6 block"
+          className="text-xs text-emerald-400 font-semibold hover:underline mb-6 block"
         >
           Clear all filters
         </button>

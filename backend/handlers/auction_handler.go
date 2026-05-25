@@ -21,7 +21,7 @@ func (h *AuctionHandler) GetAuctions(c *fiber.Ctx) error {
 	status := c.Query("status")
 
 	query := `
-		SELECT a.id, a.product_id, a.start_price, a.current_bid, a.start_time, a.end_time,
+		SELECT a.id, a.product_id, a.starting_price AS start_price, a.current_bid, a.start_time, a.end_time,
 		       a.status, a.created_at,
 		       p.id, p.name, p.species, p.price, p.description, p.image_url,
 		       p.badge, p.category_id, p.stock, p.is_active, p.created_at
@@ -104,9 +104,9 @@ func (h *AuctionHandler) CreateAuction(c *fiber.Ctx) error {
 
 	var a models.Auction
 	err = h.DB.QueryRow(c.Context(), `
-		INSERT INTO auctions (product_id, start_price, start_time, end_time, status)
+		INSERT INTO auctions (product_id, starting_price, start_time, end_time, status)
 		VALUES ($1::uuid, $2, $3, $4, 'active')
-		RETURNING id, product_id, start_price, current_bid, start_time, end_time, status, created_at`,
+		RETURNING id, product_id, starting_price AS start_price, current_bid, start_time, end_time, status, created_at`,
 		input.ProductID, input.StartPrice, startTime, endTime,
 	).Scan(&a.ID, &a.ProductID, &a.StartPrice, &a.CurrentBid, &a.StartTime, &a.EndTime, &a.Status, &a.CreatedAt)
 
@@ -125,7 +125,7 @@ func (h *AuctionHandler) GetAuctionDetail(c *fiber.Ctx) error {
 
 	var a models.Auction
 	err := h.DB.QueryRow(c.Context(), `
-		SELECT id, product_id, start_price, current_bid, start_time, end_time, status, created_at
+		SELECT id, product_id, starting_price AS start_price, current_bid, start_time, end_time, status, created_at
 		FROM auctions WHERE id = $1::uuid`, id,
 	).Scan(&a.ID, &a.ProductID, &a.StartPrice, &a.CurrentBid, &a.StartTime, &a.EndTime, &a.Status, &a.CreatedAt)
 	if err != nil {
@@ -172,7 +172,7 @@ func (h *AuctionHandler) PlaceBid(c *fiber.Ctx) error {
 
 	var a models.Auction
 	err := h.DB.QueryRow(c.Context(), `
-		SELECT id, start_price, current_bid, start_time, end_time, status
+		SELECT id, starting_price AS start_price, current_bid, start_time, end_time, status
 		FROM auctions WHERE id = $1::uuid`, auctionID,
 	).Scan(&a.ID, &a.StartPrice, &a.CurrentBid, &a.StartTime, &a.EndTime, &a.Status)
 	if err != nil {
@@ -209,9 +209,9 @@ func (h *AuctionHandler) PlaceBid(c *fiber.Ctx) error {
 		CreatedAt time.Time `json:"created_at"`
 	}
 	err = tx.QueryRow(c.Context(), `
-		INSERT INTO bids (auction_id, user_id, amount)
+		INSERT INTO bids (auction_id, user_id, bid_amount)
 		VALUES ($1::uuid, $2::uuid, $3)
-		RETURNING id, auction_id, user_id, amount, created_at`,
+		RETURNING id, auction_id, user_id, bid_amount AS amount, created_at`,
 		auctionID, input.UserID, input.Amount,
 	).Scan(&bid.ID, &bid.AuctionID, &bid.UserID, &bid.Amount, &bid.CreatedAt)
 	if err != nil {
@@ -241,12 +241,12 @@ func (h *AuctionHandler) GetAuctionBids(c *fiber.Ctx) error {
 
 func (h *AuctionHandler) getBids(c *fiber.Ctx, auctionID string) ([]models.BidWithUser, error) {
 	rows, err := h.DB.Query(c.Context(), `
-		SELECT b.id, b.auction_id, b.user_id, b.amount, b.created_at,
+		SELECT b.id, b.auction_id, b.user_id, b.bid_amount AS amount, b.created_at,
 		       p.full_name, p.avatar_url
 		FROM bids b
 		JOIN profiles p ON b.user_id = p.id
 		WHERE b.auction_id = $1::uuid
-		ORDER BY b.amount DESC`, auctionID)
+		ORDER BY b.bid_amount DESC`, auctionID)
 	if err != nil {
 		return nil, models.Error(c, "Gagal mengambil bids", 500)
 	}

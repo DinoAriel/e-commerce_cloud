@@ -42,17 +42,17 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
 
       {/* Hero Banner */}
-      <div className={`relative mx-4 md:mx-8 mt-4 rounded-3xl overflow-hidden min-h-[220px] md:min-h-[280px] flex items-end p-8 md:p-12 ${hero.bg}`}>
+      <div className={`relative overflow-hidden min-h-[220px] md:min-h-[280px] flex items-end p-8 md:p-12 ${hero.bg}`}>
         <div className="absolute inset-0 opacity-30" style={{ background: hero.gradient }} />
         <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice">
           {[0, 40, 80, 120, 160].map((offset, i) => (
@@ -61,7 +61,7 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
           ))}
         </svg>
         <div className="relative z-10 max-w-xl">
-          <span className={`inline-block ${hero.badgeBg} text-white text-xs font-bold px-4 py-1.5 rounded-full mb-4 tracking-widest uppercase`}>
+          <span className={`inline-block ${hero.badgeBg} text-xs font-bold px-4 py-1.5 rounded-full mb-4 tracking-widest uppercase`}>
             {hero.tag}
           </span>
           <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
@@ -79,26 +79,26 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
         {/* Sidebar Filter */}
         <aside className="hidden md:block w-52 shrink-0">
           <div className="flex items-center gap-2 mb-6">
-            <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 010 2H4a1 1 0 01-1-1zM6 12a1 1 0 011-1h10a1 1 0 010 2H7a1 1 0 01-1-1zM9 19a1 1 0 011-1h4a1 1 0 010 2h-4a1 1 0 01-1-1z" />
             </svg>
-            <span className="font-bold text-dark text-sm">Filter Hasil</span>
+            <span className="font-bold text-white text-sm">Filter Hasil</span>
           </div>
 
           <div className="mb-6">
-            <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">Urutkan</p>
+            <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-3">Urutkan</p>
             <select
               value={sortBy}
               onChange={e => { setSortBy(e.target.value); setCurrentPage(1) }}
-              className="w-full text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none"
+              className="w-full text-sm text-slate-300 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 outline-none"
             >
-              {sortOptions.map(o => <option key={o}>{o}</option>)}
+              {sortOptions.map(o => <option key={o} className="bg-slate-900">{o}</option>)}
             </select>
           </div>
 
           {sidebarExtra}
 
-          <div className={`${theme.sidebarCard} rounded-2xl p-4 text-white`}>
+          <div className={`${theme.sidebarCard} rounded-2xl p-4 text-white border border-slate-800`}>
             <div className="flex items-center gap-2 mb-2">
               <svg className={`w-4 h-4 ${theme.sidebarAccent}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -114,30 +114,30 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
         {/* Products */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-gray-500">
-              Menampilkan <span className="font-bold text-dark">{filtered.length} {hero.unit}</span>
+            <p className="text-sm text-slate-400">
+              Menampilkan <span className="font-bold text-white">{filtered.length} {hero.unit}</span>
             </p>
             <div className="flex items-center gap-2 md:hidden">
-              <span className="text-sm text-gray-500">Urutkan:</span>
+              <span className="text-sm text-slate-400">Urutkan:</span>
               <select
                 value={sortBy}
                 onChange={e => { setSortBy(e.target.value); setCurrentPage(1) }}
-                className="text-sm font-semibold text-dark bg-transparent border-none outline-none cursor-pointer"
+                className="text-sm font-semibold text-white bg-transparent border-none outline-none cursor-pointer"
               >
-                {sortOptions.map(o => <option key={o}>{o}</option>)}
+                {sortOptions.map(o => <option key={o} className="bg-slate-900">{o}</option>)}
               </select>
             </div>
           </div>
 
           {paginated.length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
+            <div className="text-center py-20 text-slate-500">
               <p className="text-lg">Belum ada produk untuk kategori ini.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginated.map(fish => (
-                <div key={fish.id} onClick={() => navigate(`/product/${fish.id}`)} className={`group bg-white border border-gray-100 hover:shadow-xl rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer ${theme.hoverBorder || 'hover:border-primary-border hover:shadow-primary/5'}`}>
-                  <div className="relative aspect-square bg-gray-50 overflow-hidden">
+                <div key={fish.id} onClick={() => navigate(`/product/${fish.id}`)} className={`group bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer ${theme.hoverBorder || 'hover:border-slate-700/80 hover:shadow-cyan-950/20'}`}>
+                  <div className="relative aspect-square bg-slate-950 overflow-hidden">
                     <img
                       src={fish.image_url}
                       alt={fish.name}
@@ -145,16 +145,16 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {fish.badge && (
-                      <span className={`absolute top-3 left-3 ${badgeColors[fish.badge] || 'bg-gray-500'} text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide`}>
+                      <span className={`absolute top-3 left-3 ${badgeColors[fish.badge] || 'bg-slate-800 text-slate-300'} text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide`}>
                         {fish.badge}
                       </span>
                     )}
                   </div>
                   <div className="p-4">
-                    <p className="text-xs text-gray-400 italic mb-0.5">{fish.species}</p>
-                    <h3 className="font-bold text-dark text-base">{fish.name}</h3>
+                    <p className="text-xs text-slate-500 italic mb-0.5">{fish.species}</p>
+                    <h3 className="font-bold text-white text-base truncate">{fish.name}</h3>
                     <div className="flex items-center justify-between mt-3">
-                      <p className={`text-lg font-bold ${theme.priceColor}`}>
+                      <p className={`text-lg font-extrabold ${theme.priceColor}`}>
                         {formatPrice(fish.price)}
                       </p>
                       <button
@@ -185,7 +185,7 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 disabled:opacity-30 transition-all"
+                className="w-9 h-9 rounded-xl border border-slate-800 flex items-center justify-center text-slate-400 hover:border-slate-700 hover:bg-slate-900 disabled:opacity-30 transition-all"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -197,7 +197,7 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
                   key={p}
                   onClick={() => setCurrentPage(p)}
                   className={`w-9 h-9 rounded-xl text-sm font-medium transition-all
-                    ${currentPage === p ? `${theme.activePage} text-white` : 'border border-gray-200 text-gray-600 hover:border-gray-400'}`}
+                    ${currentPage === p ? `${theme.activePage} text-white` : 'border border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900'}`}
                 >
                   {p}
                 </button>
@@ -206,7 +206,7 @@ export default function CategoryPageLayout({ products, loading, hero, theme, sid
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 disabled:opacity-30 transition-all"
+                className="w-9 h-9 rounded-xl border border-slate-800 flex items-center justify-center text-slate-400 hover:border-slate-700 hover:bg-slate-900 disabled:opacity-30 transition-all"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

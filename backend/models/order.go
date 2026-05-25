@@ -8,6 +8,9 @@ type Order struct {
 	TotalAmount     int       `json:"total_amount"`
 	Status          string    `json:"status"`
 	ShippingAddress *string   `json:"shipping_address"`
+	SnapToken       *string   `json:"snap_token"`
+	Rating          *int      `json:"rating"`
+	Review          *string   `json:"review"`
 	CreatedAt       time.Time `json:"created_at"`
 }
 

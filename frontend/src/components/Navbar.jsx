@@ -51,15 +51,15 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-900">
       <div className="px-4 md:px-20 h-16 flex items-center justify-between gap-2">
 
         {/* Logo */}
         <button
           onClick={() => navigate('/')}
-          className="text-xl font-bold text-dark shrink-0 hover:text-primary transition-colors"
+          className="text-xl font-bold text-white shrink-0 hover:text-teal-400 transition-colors"
         >
-          Aqua<span className="text-primary">Market</span>
+          Aqua<span className="text-teal-400">Market</span>
         </button>
 
         {/* Desktop Nav Links */}
@@ -70,8 +70,8 @@ export default function Navbar() {
               onClick={() => handleNavClick(link)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                 ${isActive(link.path)
-                  ? 'text-primary bg-primary-lighter'
-                  : 'text-gray-500 hover:text-primary hover:bg-primary-lighter'
+                  ? 'text-teal-400 bg-teal-500/10'
+                  : 'text-slate-400 hover:text-teal-400 hover:bg-teal-500/5'
                 }
                 ${link.name === 'Auctions' ? 'relative' : ''}
               `}
@@ -97,13 +97,13 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onBlur={() => { if (!searchQuery) setSearchOpen(false) }}
-                className="w-40 md:w-64 pl-4 pr-10 py-2 text-sm border border-primary-border rounded-xl bg-primary-lighter text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                className="w-40 md:w-64 pl-4 pr-10 py-2 text-sm border border-slate-800 rounded-xl bg-slate-900 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
               />
             )}
             <button
               type="submit"
               onClick={(e) => { if (!searchOpen) { setSearchOpen(true); e.preventDefault() } }}
-              className="p-2 rounded-xl text-gray-500 hover:text-primary hover:bg-primary-lighter transition-all"
+              className="p-2 rounded-xl text-slate-400 hover:text-teal-400 hover:bg-slate-900 transition-all"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
@@ -114,13 +114,13 @@ export default function Navbar() {
           {/* Cart */}
           <button
             onClick={() => navigate('/cart')}
-            className="relative p-2 rounded-xl text-gray-500 hover:text-primary hover:bg-primary-lighter transition-all"
+            className="relative p-2 rounded-xl text-slate-400 hover:text-teal-400 hover:bg-slate-900 transition-all"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
             </svg>
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-teal-500 text-slate-950 text-[10px] font-bold rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             )}
@@ -130,34 +130,40 @@ export default function Navbar() {
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="w-9 h-9 rounded-xl bg-primary-lighter flex items-center justify-center hover:bg-primary/20 transition-all"
+              className="w-9 h-9 rounded-xl bg-slate-900 text-teal-400 flex items-center justify-center hover:bg-slate-800 transition-all"
             >
-              <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" />
               </svg>
             </button>
             {profileOpen && (
-              <div className="absolute right-0 top-12 bg-white border border-gray-100 rounded-xl shadow-lg py-2 w-48 z-50">
+              <div className="absolute right-0 top-12 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-2 w-48 z-50">
                 {user ? (
                   <>
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-dark truncate">{user.email}</p>
+                    <div className="px-4 py-2 border-b border-slate-800">
+                      <p className="text-sm font-semibold text-slate-100 truncate">{user.email}</p>
                     </div>
                     <button
                       onClick={() => { setProfileOpen(false); navigate('/dashboard') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
                     >
                       Dashboard
                     </button>
                     <button
+                      onClick={() => { setProfileOpen(false); navigate('/profile') }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
+                    >
+                      Profil & Ulasan
+                    </button>
+                    <button
                       onClick={() => { setProfileOpen(false); navigate('/admin') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-blue-600 font-medium hover:bg-gray-50 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-sm text-teal-400 font-medium hover:bg-slate-800 transition-colors cursor-pointer"
                     >
                       Admin Dashboard
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-colors cursor-pointer"
                     >
                       Logout
                     </button>
@@ -166,13 +172,13 @@ export default function Navbar() {
                   <>
                     <button
                       onClick={() => { setProfileOpen(false); navigate('/login') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
                     >
                       Login
                     </button>
                     <button
                       onClick={() => { setProfileOpen(false); navigate('/signup') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
                     >
                       Sign Up
                     </button>
@@ -185,7 +191,7 @@ export default function Navbar() {
           {/* Mobile Hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-xl text-gray-500 hover:text-primary hover:bg-primary-lighter transition-all"
+            className="md:hidden p-2 rounded-xl text-slate-400 hover:text-teal-400 hover:bg-slate-900 transition-all"
           >
             {menuOpen ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -202,15 +208,15 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
+        <div className="md:hidden bg-slate-950 border-t border-slate-900 px-4 py-3 space-y-1">
           {navLinks.map((link) => (
             <button
               key={link.name}
               onClick={() => handleNavClick(link)}
               className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all
                 ${isActive(link.path)
-                  ? 'text-primary bg-primary-lighter'
-                  : 'text-gray-500 hover:text-primary hover:bg-gray-50'
+                  ? 'text-teal-400 bg-teal-500/10'
+                  : 'text-slate-400 hover:text-teal-400 hover:bg-slate-900'
                 }
                 ${link.name === 'Auctions' ? 'relative' : ''}
               `}

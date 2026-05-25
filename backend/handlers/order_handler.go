@@ -1,19 +1,25 @@
 package handlers
 
 import (
+	"backend/config"
 	"backend/middleware"
 	"backend/models"
+	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/snap"
 )
 
 type OrderHandler struct {
-	DB *pgxpool.Pool
+	DB  *pgxpool.Pool
+	Cfg config.Config
 }
 
-func NewOrderHandler(db *pgxpool.Pool) *OrderHandler {
-	return &OrderHandler{DB: db}
+func NewOrderHandler(db *pgxpool.Pool, cfg config.Config) *OrderHandler {
+	return &OrderHandler{DB: db, Cfg: cfg}
 }
 
 func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
@@ -84,9 +90,9 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 	err = tx.QueryRow(c.Context(), `
 		INSERT INTO orders (user_id, total_amount, status, shipping_address)
 		VALUES ($1::uuid, $2, 'pending', $3)
-		RETURNING id, user_id, total_amount, status, shipping_address, created_at`,
+		RETURNING id, user_id, total_amount, status, shipping_address, snap_token, rating, review, created_at`,
 		input.UserID, totalAmount, input.ShippingAddress,
-	).Scan(&order.ID, &order.UserID, &order.TotalAmount, &order.Status, &order.ShippingAddress, &order.CreatedAt)
+	).Scan(&order.ID, &order.UserID, &order.TotalAmount, &order.Status, &order.ShippingAddress, &order.SnapToken, &order.Rating, &order.Review, &order.CreatedAt)
 	if err != nil {
 		return models.Error(c, "Gagal membuat order", 500)
 	}
@@ -119,6 +125,31 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 
 	tx.Exec(c.Context(), `DELETE FROM cart_items WHERE user_id = $1::uuid`, input.UserID)
 
+	// Midtrans Snap Token Request
+	serverKey := strings.TrimSpace(h.Cfg.MidtransServerKey)
+	fmt.Printf("DEBUG: ServerKey length: %d, value: %q\n", len(serverKey), serverKey)
+	midtrans.ServerKey = serverKey
+	midtrans.Environment = midtrans.Sandbox
+
+	req := &snap.Request{
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  order.ID,
+			GrossAmt: int64(order.TotalAmount),
+		},
+	}
+
+	snapResp, snapErr := snap.CreateTransaction(req)
+	if snapErr != nil {
+		fmt.Printf("Midtrans Snap Error: StatusCode=%d, Message=%s, Raw=%v\n", snapErr.StatusCode, snapErr.Message, snapErr.RawError)
+		return models.Error(c, fmt.Sprintf("Gagal memproses pembayaran Midtrans: %s", snapErr.Message), 500)
+	}
+
+	_, updateErr := tx.Exec(c.Context(), `UPDATE orders SET snap_token = $1 WHERE id = $2::uuid`, snapResp.Token, order.ID)
+	if updateErr != nil {
+		return models.Error(c, "Gagal menyimpan token pembayaran", 500)
+	}
+	order.SnapToken = &snapResp.Token
+
 	if err := tx.Commit(c.Context()); err != nil {
 		return models.Error(c, "Gagal commit order", 500)
 	}
@@ -133,7 +164,7 @@ func (h *OrderHandler) GetUserOrders(c *fiber.Ctx) error {
 	}
 
 	rows, err := h.DB.Query(c.Context(), `
-		SELECT id, user_id, total_amount, status, shipping_address, created_at
+		SELECT id, user_id, total_amount, status, shipping_address, snap_token, rating, review, created_at
 		FROM orders WHERE user_id = $1::uuid
 		ORDER BY created_at DESC`, userID)
 	if err != nil {
@@ -144,7 +175,7 @@ func (h *OrderHandler) GetUserOrders(c *fiber.Ctx) error {
 	var orders []models.Order
 	for rows.Next() {
 		var o models.Order
-		if err := rows.Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.CreatedAt); err != nil {
+		if err := rows.Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.SnapToken, &o.Rating, &o.Review, &o.CreatedAt); err != nil {
 			return models.Error(c, "Gagal scan order", 500)
 		}
 		orders = append(orders, o)
@@ -152,6 +183,39 @@ func (h *OrderHandler) GetUserOrders(c *fiber.Ctx) error {
 
 	if orders == nil {
 		orders = []models.Order{}
+	}
+
+	return models.Success(c, orders)
+}
+
+type OrderWithProfile struct {
+	models.Order
+	BuyerName string `json:"buyer_name"`
+}
+
+func (h *OrderHandler) GetAllOrders(c *fiber.Ctx) error {
+	rows, err := h.DB.Query(c.Context(), `
+		SELECT o.id, o.user_id, o.total_amount, o.status, o.shipping_address, o.snap_token, o.rating, o.review, o.created_at,
+		       COALESCE(p.full_name, '') as buyer_name
+		FROM orders o
+		LEFT JOIN profiles p ON o.user_id = p.id
+		ORDER BY o.created_at DESC`)
+	if err != nil {
+		return models.Error(c, "Gagal mengambil semua orders", 500)
+	}
+	defer rows.Close()
+
+	var orders []OrderWithProfile
+	for rows.Next() {
+		var o OrderWithProfile
+		if err := rows.Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.SnapToken, &o.Rating, &o.Review, &o.CreatedAt, &o.BuyerName); err != nil {
+			return models.Error(c, "Gagal scan order", 500)
+		}
+		orders = append(orders, o)
+	}
+
+	if orders == nil {
+		orders = []OrderWithProfile{}
 	}
 
 	return models.Success(c, orders)
@@ -165,9 +229,9 @@ func (h *OrderHandler) GetOrderDetail(c *fiber.Ctx) error {
 
 	var o models.Order
 	err := h.DB.QueryRow(c.Context(), `
-		SELECT id, user_id, total_amount, status, shipping_address, created_at
+		SELECT id, user_id, total_amount, status, shipping_address, snap_token, rating, review, created_at
 		FROM orders WHERE id = $1::uuid`, id,
-	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.CreatedAt)
+	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.SnapToken, &o.Rating, &o.Review, &o.CreatedAt)
 	if err != nil {
 		return models.Error(c, "Order tidak ditemukan", 404)
 	}
@@ -222,9 +286,9 @@ func (h *OrderHandler) UpdateOrderStatus(c *fiber.Ctx) error {
 	var o models.Order
 	err := h.DB.QueryRow(c.Context(), `
 		UPDATE orders SET status = $1 WHERE id = $2::uuid
-		RETURNING id, user_id, total_amount, status, shipping_address, created_at`,
+		RETURNING id, user_id, total_amount, status, shipping_address, snap_token, rating, review, created_at`,
 		input.Status, id,
-	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.CreatedAt)
+	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.SnapToken, &o.Rating, &o.Review, &o.CreatedAt)
 
 	if err != nil {
 		return models.Error(c, "Order tidak ditemukan", 404)
@@ -252,12 +316,92 @@ func (h *OrderHandler) CancelOrder(c *fiber.Ctx) error {
 	var o models.Order
 	err = h.DB.QueryRow(c.Context(), `
 		UPDATE orders SET status = 'cancelled' WHERE id = $1::uuid AND status = 'pending'
-		RETURNING id, user_id, total_amount, status, shipping_address, created_at`, id,
-	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.CreatedAt)
+		RETURNING id, user_id, total_amount, status, shipping_address, snap_token, rating, review, created_at`, id,
+	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.SnapToken, &o.Rating, &o.Review, &o.CreatedAt)
 
 	if err != nil {
 		return models.Error(c, "Gagal membatalkan order", 500)
 	}
 
 	return models.Success(c, o)
+}
+
+func (h *OrderHandler) RateOrder(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if err := middleware.ValidateUUID("Order ID", id); err != nil {
+		return models.Error(c, err.Error(), 400)
+	}
+
+	var input struct {
+		Rating int    `json:"rating"`
+		Review string `json:"review"`
+	}
+	if err := c.BodyParser(&input); err != nil {
+		return models.Error(c, "Request body tidak valid", 400)
+	}
+
+	if input.Rating < 1 || input.Rating > 5 {
+		return models.Error(c, "Rating harus antara 1 sampai 5", 400)
+	}
+
+	var o models.Order
+	err := h.DB.QueryRow(c.Context(), `
+		UPDATE orders SET rating = $1, review = $2 WHERE id = $3::uuid
+		RETURNING id, user_id, total_amount, status, shipping_address, snap_token, rating, review, created_at`,
+		input.Rating, input.Review, id,
+	).Scan(&o.ID, &o.UserID, &o.TotalAmount, &o.Status, &o.ShippingAddress, &o.SnapToken, &o.Rating, &o.Review, &o.CreatedAt)
+
+	if err != nil {
+		return models.Error(c, "Order tidak ditemukan atau gagal mengupdate rating", 404)
+	}
+
+	return models.Success(c, o)
+}
+
+func (h *OrderHandler) PaymentNotification(c *fiber.Ctx) error {
+	var input struct {
+		OrderID           string `json:"order_id"`
+		TransactionStatus string `json:"transaction_status"`
+		FraudStatus       string `json:"fraud_status"`
+		StatusCode        string `json:"status_code"`
+	}
+
+	if err := c.BodyParser(&input); err != nil {
+		return models.Error(c, "Payload tidak valid", 400)
+	}
+
+	if input.OrderID == "" {
+		return models.Error(c, "order_id wajib ada", 400)
+	}
+
+	// Determine new order status
+	var newStatus string
+	switch input.TransactionStatus {
+	case "capture":
+		if input.FraudStatus == "challenge" {
+			newStatus = "pending"
+		} else if input.FraudStatus == "accept" {
+			newStatus = "paid"
+		}
+	case "settlement":
+		newStatus = "paid"
+	case "cancel", "deny", "expire":
+		newStatus = "cancelled"
+	case "pending":
+		newStatus = "pending"
+	default:
+		newStatus = "pending"
+	}
+
+	// Update status in DB
+	if newStatus != "" {
+		_, err := h.DB.Exec(c.Context(), `UPDATE orders SET status = $1 WHERE id = $2::uuid`, newStatus, input.OrderID)
+		if err != nil {
+			fmt.Printf("Gagal update status via webhook untuk order %s: %v\n", input.OrderID, err)
+			return models.Error(c, "Gagal update status pesanan", 500)
+		}
+		fmt.Printf("Webhook Midtrans: Order %s berhasil diupdate ke status %s\n", input.OrderID, newStatus)
+	}
+
+	return models.Success(c, fiber.Map{"message": "Notification processed successfully"})
 }

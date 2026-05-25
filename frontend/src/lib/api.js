@@ -118,6 +118,11 @@ export const createOrder = (data) => request('/orders', {
   body: JSON.stringify(data),
 })
 
+export const getOrders = () => request('/orders')
+
+export const getOrdersWithRatings = () => request('/orders')
+
+
 export const getUserOrders = (userId) => request(`/orders/user/${userId}`)
 
 export const getOrderDetail = (id) => request(`/orders/${id}`)
@@ -125,6 +130,11 @@ export const getOrderDetail = (id) => request(`/orders/${id}`)
 export const updateOrderStatus = (id, status) => request(`/orders/${id}/status`, {
   method: 'PUT',
   body: JSON.stringify({ status }),
+})
+
+export const rateOrder = (id, rating, review) => request(`/orders/${id}/rate`, {
+  method: 'PUT',
+  body: JSON.stringify({ rating, review }),
 })
 
 export const getAuctions = (status) => {

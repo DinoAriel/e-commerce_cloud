@@ -58,23 +58,23 @@ export default function HomePage() {
   }, [searchQuery])
 
   return (
-    <div className="bg-white min-h-screen text-gray-800 font-sans overflow-x-hidden">
+    <div className="bg-slate-950 min-h-screen text-slate-100 font-sans overflow-x-hidden">
 
       {/* Search Results Header */}
       {searchQuery && (
         <div className="px-8 md:px-20 pt-8 pb-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-dark">
+              <h1 className="text-2xl font-bold text-white">
                 Hasil pencarian untuk "{searchQuery}"
               </h1>
-              <p className="text-gray-500 text-sm mt-1">
+              <p className="text-slate-400 text-sm mt-1">
                 {loading ? 'Mencari...' : `${products.length} produk ditemukan`}
               </p>
             </div>
             <button
               onClick={() => navigate('/')}
-              className="text-primary hover:underline text-sm font-medium"
+              className="text-teal-400 hover:underline text-sm font-medium cursor-pointer"
             >
               Hapus pencarian
             </button>
@@ -84,52 +84,62 @@ export default function HomePage() {
 
       {/* Hero Section - hide when searching */}
       {!searchQuery && (
-        <section className="bg-gradient-to-br from-primary-light to-white min-h-[480px] flex flex-col md:flex-row items-center px-8 md:px-20 py-12 md:py-0">
-          <div className="z-10 max-w-lg flex-1 mb-10 md:mb-0">
-            <span className="bg-primary-lighter text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full border border-primary-border">
-              Koleksi Premium 2024
+        <section className="relative min-h-[480px] overflow-hidden flex flex-col md:flex-row items-center px-8 md:px-20 py-12 md:py-0 bg-gradient-to-b from-[#031525] to-slate-950 border-b border-slate-900/60">
+          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_40%,#0e7490_0%,transparent_60%)]" />
+          
+          <div className="z-10 max-w-lg flex-1 mb-10 md:mb-0 relative">
+            <span className="inline-flex items-center gap-2 border border-teal-500/30 bg-teal-500/10 text-teal-400 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+              Koleksi Premium 2026
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-6 leading-[1.15] text-dark">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mt-6 leading-tight text-white">
               Jelajahi Dunia <br className="hidden md:block" />Bawah Laut yang <br className="hidden md:block" />
-              <span className="text-primary relative inline-block">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-300 relative inline-block">
                 Menakjubkan
-                <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary/30" viewBox="0 0 100 10" preserveAspectRatio="none">
-                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="4" fill="transparent" />
-                </svg>
               </span>
             </h1>
-            <p className="text-gray-500 mt-6 text-base leading-relaxed max-w-md">
+            <p className="text-slate-400 mt-6 text-base leading-relaxed max-w-md">
               Kami menyediakan ekosistem akuatik ke dalam rumah Anda dengan koleksi ikan hias dan peternak terbaik dunia.
             </p>
             <div className="flex flex-wrap gap-4 mt-8">
               <button
                 onClick={() => navigate('/freshwater')}
-                className="bg-primary text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 active:scale-95 transition-all duration-200"
+                className="bg-teal-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl hover:bg-teal-400 hover:shadow-lg hover:shadow-teal-500/20 active:scale-95 transition-all duration-200 cursor-pointer"
               >
                 Mulai Belanja
               </button>
               <button
                 onClick={() => navigate('/auctions')}
-                className="border-2 border-primary-border text-primary font-semibold px-8 py-3.5 rounded-xl hover:bg-primary-lighter active:scale-95 transition-all duration-200 bg-white"
+                className="border border-slate-800 text-slate-300 font-semibold px-8 py-3.5 rounded-xl hover:bg-slate-900/60 active:scale-95 transition-all duration-200 cursor-pointer"
               >
                 Lihat Lelang
               </button>
             </div>
           </div>
 
-          <div className="flex-1 flex justify-center items-center z-10 w-full relative">
-            <div className="relative w-full max-w-[420px] aspect-[5/4]">
-              <div className="absolute top-[5%] right-[5%] w-[85%] h-[90%] rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20 backdrop-blur-sm"></div>
-              <img
-                src="/images/betta.png"
-                alt="Ikan hias premium"
-                className="absolute top-0 right-0 w-[95%] h-[90%] object-cover rounded-3xl shadow-[0_20px_60px_rgba(137,212,255,0.3)] z-10 border-4 border-white"
-              />
-              <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-primary-border flex items-center gap-4 z-20 animate-bounce cursor-default" style={{ animationDuration: '3s' }}>
-                <span className="text-3xl bg-primary-lighter p-2 rounded-xl">🐠</span>
-                <div>
-                  <div className="text-sm font-bold text-dark">500+ Spesies</div>
-                  <div className="text-xs font-medium text-primary">Tersedia sekarang</div>
+          <div className="flex-1 flex justify-center items-center z-10 w-full relative py-8 md:py-0">
+            <div className="relative w-full max-w-[440px] aspect-[1.2/1] group">
+              {/* Subtle background glow */}
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-cyan-500/10 to-teal-500/5 blur-2xl group-hover:scale-105 transition-transform duration-500"></div>
+              
+              {/* Glassmorphic Image Frame */}
+              <div className="relative w-full h-full bg-slate-900/40 backdrop-blur-md rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-10 border border-slate-800 p-3 overflow-hidden">
+                <div className="relative w-full h-full rounded-2xl overflow-hidden bg-slate-950">
+                  <img 
+                    src="/images/single_fish_hero.png" 
+                    alt="Single Premium Fish Specimen" 
+                    className="w-full h-full object-cover scale-102 group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                  {/* Subtle overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
+                </div>
+              </div>
+
+              {/* Floating Badge - Top Right */}
+              <div className="absolute -top-4 -right-4 bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl px-4 py-2.5 shadow-2xl z-20 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+                <div className="text-[10px] font-extrabold tracking-widest text-teal-400 uppercase">
+                  Premium Collection
                 </div>
               </div>
             </div>
@@ -140,8 +150,8 @@ export default function HomePage() {
       {/* Error State */}
       {error && !searchQuery && (
         <div className="px-8 md:px-20 py-6">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
-            <p className="text-red-500 text-sm">{error}</p>
+          <div className="bg-red-950/20 border border-red-900/50 rounded-xl p-4 text-center">
+            <p className="text-red-400 text-sm">{error}</p>
           </div>
         </div>
       )}
@@ -149,17 +159,17 @@ export default function HomePage() {
       {/* Search Results Loading */}
       {searchQuery && loading && (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Search Results Grid */}
       {searchQuery && !loading && products.length === 0 && (
         <div className="px-8 md:px-20 py-20 text-center">
-          <p className="text-gray-400 text-lg">Tidak ada produk yang cocok dengan pencarian Anda.</p>
+          <p className="text-slate-500 text-lg">Tidak ada produk yang cocok dengan pencarian Anda.</p>
           <button
             onClick={() => navigate('/')}
-            className="mt-4 text-primary hover:underline font-medium"
+            className="mt-4 text-teal-400 hover:underline font-medium cursor-pointer"
           >
             Kembali ke beranda
           </button>
@@ -189,13 +199,13 @@ export default function HomePage() {
                   if (cat.name === 'Rare Fish') navigate('/rarefish')
                   if (cat.name === 'Auction') navigate('/auctions')
                 }}
-                className="bg-white border text-center md:text-left border-gray-100 hover:border-primary-border hover:shadow-xl hover:shadow-primary/5 rounded-3xl p-8 cursor-pointer transition-all duration-300 group transform hover:-translate-y-1"
+                className="bg-slate-900/40 border text-center md:text-left border-slate-800 hover:border-slate-700/80 hover:bg-slate-900/60 hover:shadow-xl hover:shadow-cyan-950/20 rounded-3xl p-8 cursor-pointer transition-all duration-300 group transform hover:-translate-y-1"
               >
-                <div className="bg-primary/10 text-primary w-14 h-14 rounded-2xl mb-6 mx-auto md:mx-0 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                <div className="bg-teal-500/10 text-teal-400 w-14 h-14 rounded-2xl mb-6 mx-auto md:mx-0 flex items-center justify-center group-hover:bg-teal-500 group-hover:text-slate-950 transition-colors duration-300">
                   {cat.icon}
                 </div>
-                <h3 className="text-xl font-bold text-dark mb-2">{cat.name}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{cat.desc}</p>
+                <h3 className="text-xl font-bold text-white mb-2">{cat.name}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{cat.desc}</p>
               </div>
             ))}
           </div>
@@ -207,15 +217,15 @@ export default function HomePage() {
 
       {/* Produk Terpopuler Section */}
       {!searchQuery && (
-        <section className="px-8 md:px-20 py-10 bg-gray-50 rounded-t-[3rem]">
+        <section className="px-8 md:px-20 py-16 bg-slate-900/20 rounded-t-[3rem] border-t border-slate-900">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <h2 className="text-3xl font-bold text-dark">Koleksi Terpopuler</h2>
-              <p className="text-gray-500 text-sm mt-2">Pilihan terbaik untuk akuarium Anda minggu ini</p>
+              <h2 className="text-3xl font-bold text-white">Koleksi Terpopuler</h2>
+              <p className="text-slate-400 text-sm mt-2">Pilihan terbaik untuk akuarium Anda minggu ini</p>
             </div>
             <button
               onClick={() => navigate('/freshwater')}
-              className="text-dark font-semibold text-sm hover:text-primary transition-colors flex items-center gap-1 group"
+              className="text-slate-300 font-semibold text-sm hover:text-teal-400 transition-colors flex items-center gap-1 group cursor-pointer"
             >
               Lihat Semua
               <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -223,7 +233,7 @@ export default function HomePage() {
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-10">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -246,14 +256,14 @@ export default function HomePage() {
 
       {/* Banner Garansi */}
       {!searchQuery && (
-        <section className="px-8 md:px-20 py-16 bg-gray-50">
-          <div className="bg-gradient-to-br from-primary-light to-white border border-primary-border shadow-md rounded-[2.5rem] p-12 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary-dark/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        <section className="px-8 md:px-20 py-16 bg-slate-950">
+          <div className="bg-gradient-to-br from-[#0c2438] to-[#04111d] border border-slate-800 shadow-md rounded-[2.5rem] p-12 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
             <div className="relative z-10">
-              <div className="text-5xl mb-6 inline-block bg-white p-4 rounded-2xl shadow-sm border border-primary-border">🛡️</div>
-              <h2 className="text-3xl font-bold text-dark mb-4">100% Garansi Sampai Tujuan</h2>
-              <p className="text-gray-500 mt-2 text-base max-w-xl mx-auto leading-relaxed">
+              <div className="text-5xl mb-6 inline-block bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-800">🛡️</div>
+              <h2 className="text-3xl font-bold text-white mb-4">100% Garansi Sampai Tujuan</h2>
+              <p className="text-slate-400 mt-2 text-base max-w-xl mx-auto leading-relaxed">
                 Dead on Arrival (DOA) Guarantee. Jika ikan datang dalam keadaan tidak normal, kami memberikan garansi uang kembali atau penggantian produk secara gratis.
               </p>
             </div>

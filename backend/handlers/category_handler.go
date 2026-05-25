@@ -18,7 +18,7 @@ func NewCategoryHandler(db *pgxpool.Pool) *CategoryHandler {
 }
 
 func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
-	rows, err := h.DB.Query(c.Context(), `SELECT id, name, slug, description, created_at FROM categories ORDER BY name ASC`)
+	rows, err := h.DB.Query(c.Context(), `SELECT id, name, slug FROM categories ORDER BY name ASC`)
 	if err != nil {
 		return models.Error(c, "Gagal mengambil kategori", 500)
 	}
@@ -27,7 +27,7 @@ func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
 	var categories []models.Category
 	for rows.Next() {
 		var cat models.Category
-		if err := rows.Scan(&cat.ID, &cat.Name, &cat.Slug, &cat.Description, &cat.CreatedAt); err != nil {
+		if err := rows.Scan(&cat.ID, &cat.Name, &cat.Slug); err != nil {
 			return models.Error(c, "Gagal scan kategori", 500)
 		}
 		categories = append(categories, cat)
@@ -54,11 +54,11 @@ func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 
 	var cat models.Category
 	err := h.DB.QueryRow(c.Context(), `
-		INSERT INTO categories (name, slug, description)
-		VALUES ($1, $2, $3)
-		RETURNING id, name, slug, description, created_at`,
-		input.Name, input.Slug, input.Description,
-	).Scan(&cat.ID, &cat.Name, &cat.Slug, &cat.Description, &cat.CreatedAt)
+		INSERT INTO categories (name, slug)
+		VALUES ($1, $2)
+		RETURNING id, name, slug`,
+		input.Name, input.Slug,
+	).Scan(&cat.ID, &cat.Name, &cat.Slug)
 
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
