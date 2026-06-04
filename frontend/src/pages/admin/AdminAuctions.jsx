@@ -119,7 +119,7 @@ export default function AdminAuctions() {
         }
       }
       
-      const res = await fetch('/api/auctions', {
+      const res = await fetch((import.meta.env.VITE_API_BASE_URL || '/api') + '/auctions', {
         method: 'POST',
         headers,
         body: JSON.stringify(payload)
