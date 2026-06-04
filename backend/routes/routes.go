@@ -23,6 +23,7 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	cartHandler := handlers.NewCartHandler(pool)
 	orderHandler := handlers.NewOrderHandler(pool, cfg)
 	auctionHandler := handlers.NewAuctionHandler(pool)
+	uploadHandler := handlers.NewUploadHandler()
 
 	// Products (GET public, write needs auth)
 	products := app.Group("/api/products")
@@ -79,4 +80,7 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	auctions.Post("/", auth, auctionHandler.CreateAuction)
 	auctions.Post("", auth, auctionHandler.CreateAuction)
 	auctions.Post("/:id/bids", auth, auctionHandler.PlaceBid)
+
+	// Uploads
+	app.Post("/api/upload", auth, uploadHandler.UploadImage)
 }

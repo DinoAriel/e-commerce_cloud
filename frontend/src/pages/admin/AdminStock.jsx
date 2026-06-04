@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getProducts, getCategories, createProduct, updateProduct, deleteProduct } from '../../lib/api'
+import { getProducts, getCategories, createProduct, updateProduct, deleteProduct, uploadImage } from '../../lib/api'
 
 export default function AdminStock() {
   const [products, setProducts] = useState([])
@@ -8,6 +8,8 @@ export default function AdminStock() {
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
+
 
   // Modal controls
   const [showModal, setShowModal] = useState(false)
@@ -62,6 +64,7 @@ export default function AdminStock() {
       stock: '10',
       is_active: true
     })
+    setSelectedFile(null)
     setUseUrl(false)
     setShowModal(true)
   }
@@ -83,6 +86,7 @@ export default function AdminStock() {
     // If the image is a data URI, keep useUrl as false. Otherwise, use true.
     const isBase64 = (product.image_url || '').startsWith('data:')
     setUseUrl(!isBase64 && !!product.image_url)
+    setSelectedFile(null)
     setShowModal(true)
   }
 
@@ -104,11 +108,12 @@ export default function AdminStock() {
     const file = e.target.files[0]
     if (!file) return
 
+    setSelectedFile(file)
     const reader = new FileReader()
     reader.onloadend = () => {
       setFormData(prev => ({
         ...prev,
-        image_url: reader.result // Base64 Data URL
+        image_url: reader.result // Temporary Base64 for Preview only
       }))
     }
     reader.readAsDataURL(file)
@@ -120,24 +125,32 @@ export default function AdminStock() {
     setSuccessMsg(null)
 
     // Validation
-    if (!formData.name || !formData.species || !formData.price || !formData.description || !formData.image_url) {
+    if (!formData.name || !formData.species || !formData.price || !formData.description || (!formData.image_url && !selectedFile)) {
       setError('Harap isi semua kolom wajib!')
       return
     }
 
-    const payload = {
-      name: formData.name,
-      species: formData.species,
-      price: parseInt(formData.price, 10),
-      description: formData.description,
-      image_url: formData.image_url,
-      badge: formData.badge || null,
-      category_id: formData.category_id || null,
-      stock: parseInt(formData.stock, 10) || 0,
-      is_active: formData.is_active
-    }
-
     try {
+      let finalImageUrl = formData.image_url
+
+      // If user uploaded a physical file, upload to S3 first
+      if (!useUrl && selectedFile) {
+        const uploadRes = await uploadImage(selectedFile)
+        finalImageUrl = uploadRes.image_url
+      }
+
+      const payload = {
+        name: formData.name,
+        species: formData.species,
+        price: parseInt(formData.price, 10),
+        description: formData.description,
+        image_url: finalImageUrl,
+        badge: formData.badge || null,
+        category_id: formData.category_id || null,
+        stock: parseInt(formData.stock, 10) || 0,
+        is_active: formData.is_active
+      }
+
       if (isEdit) {
         await updateProduct(selectedProductId, payload)
         setSuccessMsg('Produk berhasil diperbarui!')
@@ -448,7 +461,11 @@ export default function AdminStock() {
                     />
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, image_url: '' }))
+                        setSelectedFile(null)
+                      }}
+
                       className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
                     >
                       &times;

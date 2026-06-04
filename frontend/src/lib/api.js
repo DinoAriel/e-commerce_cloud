@@ -150,3 +150,22 @@ export const placeBid = (auctionId, data) => request(`/auctions/${auctionId}/bid
 })
 
 export const getAuctionBids = (auctionId) => request(`/auctions/${auctionId}/bids`)
+
+export const uploadImage = async (file) => {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  const headers = await getAuthHeaders()
+  // Remove Content-Type so browser sets it automatically with boundary for multipart/form-data
+  delete headers['Content-Type']
+
+  const res = await fetch(`${BASE}/upload`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  })
+
+  const json = await res.json()
+  if (!res.ok || !json.success) throw new Error(json.error || 'Gagal mengunggah gambar')
+  return json.data
+}
