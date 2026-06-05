@@ -124,18 +124,28 @@ export const getOrdersWithRatings = () => request('/orders')
 
 
 export const getUserOrders = (userId) => request(`/orders/user/${userId}`)
-
 export const getOrderDetail = (id) => request(`/orders/${id}`)
+export const updateOrderStatus = (id, status) => request(`/orders/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) })
+export const cancelOrder = (id) => request(`/orders/${id}/cancel`, { method: 'PUT' })
+export const rateOrder = (id, rating, review) => request(`/orders/${id}/rate`, { method: 'PUT', body: JSON.stringify({ rating, review }) })
 
-export const updateOrderStatus = (id, status) => request(`/orders/${id}/status`, {
-  method: 'PUT',
-  body: JSON.stringify({ status }),
-})
+// Chat API
+export const getChats = () => request('/chats')
+export const getChatMessages = (id) => request(`/chats/${id}/messages`)
+export const initChat = () => request('/chats/init', { method: 'POST' })
+export const getSessionToken = () => {
+  const sessionData = localStorage.getItem('sb-lymszumtdfbtrdexqrvv-auth-token')
+  if (sessionData) {
+    try {
+      const parsed = JSON.parse(sessionData)
+      return parsed.access_token
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  return null
+}
 
-export const rateOrder = (id, rating, review) => request(`/orders/${id}/rate`, {
-  method: 'PUT',
-  body: JSON.stringify({ rating, review }),
-})
 
 export const getAuctions = (status) => {
   const qs = status ? `?status=${status}` : ''
@@ -169,3 +179,20 @@ export const uploadImage = async (file) => {
   if (!res.ok || !json.success) throw new Error(json.error || 'Gagal mengunggah gambar')
   return json.data
 }
+
+// Addresses
+export const getUserAddresses = (userId) => request(`/addresses/user/${userId}`)
+
+export const createAddress = (data) => request('/addresses', {
+  method: 'POST',
+  body: JSON.stringify(data),
+})
+
+export const updateAddress = (id, data) => request(`/addresses/${id}`, {
+  method: 'PUT',
+  body: JSON.stringify(data),
+})
+
+export const deleteAddress = (id) => request(`/addresses/${id}`, {
+  method: 'DELETE',
+})

@@ -110,22 +110,29 @@ func getECDSAPublicKey(projectRef, kid string) (*ecdsa.PublicKey, error) {
 func JWTProtected(secret string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
-		if authHeader == "" {
+		var tokenStr string
+		
+		if authHeader != "" {
+			parts := strings.SplitN(authHeader, " ", 2)
+			if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+				tokenStr = parts[1]
+			} else {
+				return c.Status(401).JSON(fiber.Map{
+					"success": false,
+					"error":   "Format token tidak valid. Gunakan: Bearer <token>",
+				})
+			}
+		} else {
+			tokenStr = c.Query("token")
+		}
+
+		if tokenStr == "" {
 			return c.Status(401).JSON(fiber.Map{
 				"success": false,
 				"error":   "Token tidak ditemukan. Silakan login terlebih dahulu.",
 			})
 		}
 
-		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-			return c.Status(401).JSON(fiber.Map{
-				"success": false,
-				"error":   "Format token tidak valid. Gunakan: Bearer <token>",
-			})
-		}
-
-		tokenStr := parts[1]
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 			alg := t.Method.Alg()
 			fmt.Printf("[DEBUG ALGORITHM]: %v, Type: %T\n", alg, t.Method)
@@ -211,9 +218,30 @@ func JWTProtected(secret string) fiber.Handler {
 		}
 
 		role, _ := claims["role"].(string)
+		
+		fmt.Printf("[DEBUG AUTH] claims for %s: %+v\n", userID, claims)
+
+		// Fallback to app_metadata.role if available (Supabase custom claims)
+		if appMetadata, ok := claims["app_metadata"].(map[string]interface{}); ok {
+			if amRole, ok := appMetadata["role"].(string); ok {
+				role = amRole
+			}
+		}
+		if userMetadata, ok := claims["user_metadata"].(map[string]interface{}); ok {
+			if umRole, ok := userMetadata["role"].(string); ok {
+				role = umRole
+			}
+		}
+
+		// Force jyu.jur5@gmail.com to be admin (as requested by user)
+		email, _ := claims["email"].(string)
+		if email == "jyu.jur5@gmail.com" {
+			role = "admin"
+		}
 
 		c.Locals("user_id", userID)
 		c.Locals("user_role", role)
+		c.Locals("user_email", email)
 
 		return c.Next()
 	}

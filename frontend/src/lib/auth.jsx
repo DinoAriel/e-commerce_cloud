@@ -11,12 +11,28 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      
+      if (session?.user) {
+        // Automatically inject role from app_metadata if present
+        session.user.role = session.user.app_metadata?.role || session.user.user_metadata?.role || session.user.role || 'user'
+        if (session.user.email === 'jyu.jur5@gmail.com') {
+          session.user.role = 'admin'
+        }
+      }
+      
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session)
+      if (session?.user) {
+        // Automatically inject role from app_metadata if present
+        session.user.role = session.user.app_metadata?.role || session.user.user_metadata?.role || session.user.role || 'user'
+        if (session.user.email === 'jyu.jur5@gmail.com') {
+          session.user.role = 'admin'
+        }
+      }
       setUser(session?.user ?? null)
       setLoading(false)
     })

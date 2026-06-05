@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/websocket/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -24,6 +25,20 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	orderHandler := handlers.NewOrderHandler(pool, cfg)
 	auctionHandler := handlers.NewAuctionHandler(pool)
 	uploadHandler := handlers.NewUploadHandler()
+	addressHandler := handlers.NewAddressHandler(pool)
+	chatHandler := handlers.NewChatHandler(pool, cfg)
+
+	// Middleware to check if request is a WebSocket upgrade
+	app.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+
+	// WebSocket Route
+	app.Get("/ws/chat", auth, websocket.New(chatHandler.HandleWebSocket))
 
 	// Products (GET public, write needs auth)
 	products := app.Group("/api/products")
@@ -83,4 +98,18 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 
 	// Uploads
 	app.Post("/api/upload", auth, uploadHandler.UploadImage)
+
+	// Addresses (needs auth)
+	addresses := app.Group("/api/addresses", auth)
+	addresses.Get("/user/:userId", addressHandler.GetUserAddresses)
+	addresses.Post("/", addressHandler.CreateAddress)
+	addresses.Post("", addressHandler.CreateAddress)
+	addresses.Put("/:id", addressHandler.UpdateAddress)
+	addresses.Delete("/:id", addressHandler.DeleteAddress)
+	// Chats (needs auth)
+	chats := app.Group("/api/chats", auth)
+	chats.Get("/", chatHandler.GetChats) // For admin list
+	chats.Get("", chatHandler.GetChats)
+	chats.Post("/init", chatHandler.GetOrCreateChat) // For user
+	chats.Get("/:id/messages", chatHandler.GetChatMessages)
 }

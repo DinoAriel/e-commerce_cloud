@@ -12,10 +12,11 @@ import SaltwaterPage from './pages/SaltwaterPage'
 import FreshwaterPage from './pages/FreshwaterPage'
 import RarefishPage from './pages/RarefishPage'
 import AuctionsPage from './pages/AuctionsPage'
-import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
+import OrdersPage from './pages/OrdersPage'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
+import FloatingChat from './components/FloatingChat'
 
 // Admin Pages and Layout
 import AdminLayout from './components/admin/AdminLayout'
@@ -48,8 +49,8 @@ function AppLayout() {
         <Route path="/signup" element={<GuestRoute><SignUpPage /></GuestRoute>} />
         <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -61,6 +62,7 @@ function AppLayout() {
           <Route path="messages" element={<AdminMessages />} />
         </Route>
       </Routes>
+      <FloatingChat />
       {showHeaderFooter && <Footer />}
     </>
   )

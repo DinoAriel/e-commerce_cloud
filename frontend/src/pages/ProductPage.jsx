@@ -181,10 +181,23 @@ export default function ProductPage() {
             </div>
           )}
 
-          <button
-            onClick={handleAddToCart}
-            disabled={adding || isOutOfStock}
-            className={`w-full font-bold py-4 rounded-xl transition-all duration-200 text-sm tracking-wide uppercase flex items-center justify-center gap-3 shadow-lg
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('openChatContext'))
+              }}
+              className="w-16 shrink-0 flex items-center justify-center bg-slate-800 text-slate-300 hover:text-teal-400 hover:bg-slate-700 rounded-xl transition-colors shadow-lg cursor-pointer"
+              title="Chat Penjual"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={adding || isOutOfStock}
+              className={`flex-1 font-bold py-4 rounded-xl transition-all duration-200 text-sm tracking-wide uppercase flex items-center justify-center gap-3 shadow-lg
               ${isOutOfStock
                 ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
                 : added
@@ -219,6 +232,7 @@ export default function ProductPage() {
               </>
             )}
           </button>
+          </div>
         </div>
       </div>
     </div>

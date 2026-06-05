@@ -144,23 +144,25 @@ export default function Navbar() {
                       <p className="text-sm font-semibold text-slate-100 truncate">{user.email}</p>
                     </div>
                     <button
-                      onClick={() => { setProfileOpen(false); navigate('/dashboard') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
-                    >
-                      Dashboard
-                    </button>
-                    <button
                       onClick={() => { setProfileOpen(false); navigate('/profile') }}
                       className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
                     >
-                      Profil & Ulasan
+                      Profile
                     </button>
                     <button
-                      onClick={() => { setProfileOpen(false); navigate('/admin') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-teal-400 font-medium hover:bg-slate-800 transition-colors cursor-pointer"
+                      onClick={() => { setProfileOpen(false); navigate('/orders') }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
                     >
-                      Admin Dashboard
+                      Pesanan Saya
                     </button>
+                    {user.role === 'admin' && (
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate('/admin') }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-teal-400 font-medium hover:bg-slate-800 transition-colors cursor-pointer"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-colors cursor-pointer"
