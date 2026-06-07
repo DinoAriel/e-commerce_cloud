@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Peringatan: File .env tidak ditemukan, menggunakan env system")

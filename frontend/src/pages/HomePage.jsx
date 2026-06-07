@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
+import FishViewer from '../components/FishViewer'
 import TopBreederSection from '../sections/TopBreederSection'
 import TestimonialSection from '../sections/TestimonialSection'
 import ConsultSection from '../sections/ConsultSection'
@@ -118,30 +119,16 @@ export default function HomePage() {
           </div>
 
           <div className="flex-1 flex justify-center items-center z-10 w-full relative py-8 md:py-0">
-            <div className="relative w-full max-w-[440px] aspect-[1.2/1] group">
+            {/* Wadah dilebarkan (max-w 700px) dan aspect ratio diubah ke 16/9 memanjang */}
+            <div className="relative w-full max-w-[700px] aspect-[16/9] group">
               {/* Subtle background glow */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-cyan-500/10 to-teal-500/5 blur-2xl group-hover:scale-105 transition-transform duration-500"></div>
               
-              {/* Glassmorphic Image Frame */}
-              <div className="relative w-full h-full bg-slate-900/40 backdrop-blur-md rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-10 border border-slate-800 p-3 overflow-hidden">
-                <div className="relative w-full h-full rounded-2xl overflow-hidden bg-slate-950">
-                  <img 
-                    src="/images/single_fish_hero.png" 
-                    alt="Single Premium Fish Specimen" 
-                    className="w-full h-full object-cover scale-102 group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  {/* Subtle overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
-                </div>
+              {/* Model 3D tanpa bingkai/border */}
+              <div className="relative w-full h-full z-10">
+                <FishViewer className="w-full h-full" />
               </div>
 
-              {/* Floating Badge - Top Right */}
-              <div className="absolute -top-4 -right-4 bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl px-4 py-2.5 shadow-2xl z-20 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                <div className="text-[10px] font-extrabold tracking-widest text-teal-400 uppercase">
-                  Premium Collection
-                </div>
-              </div>
             </div>
           </div>
         </section>
