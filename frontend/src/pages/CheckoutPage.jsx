@@ -93,14 +93,18 @@ export default function CheckoutPage() {
             } catch (err) {
               console.error("Gagal memperbarui status order secara lokal:", err)
             }
-            dispatch(clearCart())
             setSuccessMsg("Pembayaran Berhasil! Lihat riwayat & beri ulasan di menu Profil. Mengalihkan...")
-            setTimeout(() => navigate('/'), 2500)
+            setTimeout(() => {
+              dispatch(clearCart())
+              navigate('/')
+            }, 3000)
           },
           onPending: function(result) {
-            dispatch(clearCart())
             setSuccessMsg("Menunggu Pembayaran! Silakan selesaikan pembayaran Anda. Mengalihkan...")
-            setTimeout(() => navigate('/'), 2500)
+            setTimeout(() => {
+              dispatch(clearCart())
+              navigate('/')
+            }, 3000)
           },
           onError: function(result) {
             setError("Pembayaran Gagal!")
