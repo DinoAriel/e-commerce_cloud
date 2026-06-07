@@ -13,6 +13,7 @@ export default function CheckoutPage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [successMsg, setSuccessMsg] = useState(null)
   
   // Addresses state
   const [savedAddresses, setSavedAddresses] = useState([])
@@ -93,19 +94,19 @@ export default function CheckoutPage() {
               console.error("Gagal memperbarui status order secara lokal:", err)
             }
             dispatch(clearCart())
-            alert("Pembayaran Berhasil! Lihat riwayat & beri ulasan di menu Profil & Ulasan.")
-            navigate('/')
+            setSuccessMsg("Pembayaran Berhasil! Lihat riwayat & beri ulasan di menu Profil. Mengalihkan...")
+            setTimeout(() => navigate('/'), 2500)
           },
           onPending: function(result) {
             dispatch(clearCart())
-            alert("Menunggu Pembayaran! Silakan selesaikan pembayaran di aplikasi m-banking / e-wallet Anda.")
-            navigate('/')
+            setSuccessMsg("Menunggu Pembayaran! Silakan selesaikan pembayaran Anda. Mengalihkan...")
+            setTimeout(() => navigate('/'), 2500)
           },
           onError: function(result) {
-            alert("Pembayaran Gagal!")
+            setError("Pembayaran Gagal!")
           },
           onClose: function() {
-            alert("Anda menutup halaman pembayaran sebelum menyelesaikan transfer.")
+            setError("Anda menutup halaman pembayaran sebelum menyelesaikan transfer.")
           }
         })
       } else {
@@ -163,8 +164,20 @@ export default function CheckoutPage() {
             </div>
             
             {error && (
-              <div className="mb-4 bg-red-950/20 border border-red-900/50 rounded-xl p-3 text-red-400 text-sm">
-                {error}
+              <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                <svg className="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div className="text-red-400 text-sm leading-relaxed">{error}</div>
+              </div>
+            )}
+
+            {successMsg && (
+              <div className="mb-6 px-4 py-3 bg-teal-500/10 border border-teal-500/30 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                <svg className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="text-teal-400 text-sm leading-relaxed">{successMsg}</div>
               </div>
             )}
 

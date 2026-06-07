@@ -11,10 +11,12 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setErrorMsg('')
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -23,7 +25,7 @@ export default function LoginPage() {
 
     if (error) {
       setLoading(false)
-      alert(error.message)
+      setErrorMsg(error.message)
       return
     }
 
@@ -58,7 +60,7 @@ export default function LoginPage() {
     })
     if (error) {
       console.error('Google sign-in error:', error)
-      alert(error.message)
+      setErrorMsg(error.message)
     }
   }
 
@@ -121,6 +123,16 @@ export default function LoginPage() {
               <h1 className="text-white text-3xl font-extrabold mb-2">Welcome back</h1>
               <p className="text-slate-400 text-sm">Please enter your details to access your collection.</p>
             </div>
+
+            {/* Error Message Banner */}
+            {errorMsg && (
+              <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                <svg className="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div className="text-red-400 text-sm leading-relaxed">{errorMsg}</div>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
