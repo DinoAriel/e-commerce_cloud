@@ -60,7 +60,9 @@ export default function CheckoutPage() {
     setShowAddressDropdown(false)
   }
 
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
+  const tax = Math.round(subtotal * 0.11)
+  const totalPrice = subtotal + tax
 
   const formatPrice = (price) => {
     return price.toLocaleString('id-ID')
@@ -293,11 +295,15 @@ export default function CheckoutPage() {
             <div className="space-y-3 border-t border-slate-800 pt-6">
               <div className="flex justify-between text-slate-400 text-sm">
                 <span>Subtotal</span>
-                <span className="font-medium text-slate-200">Rp {formatPrice(totalPrice)}</span>
+                <span className="font-medium text-slate-200">Rp {formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-slate-400 text-sm">
                 <span>Ongkos Kirim</span>
-                <span className="font-bold text-emerald-400">Rp 0 (Gratis)</span>
+                <span className="font-bold text-emerald-400">GRATIS</span>
+              </div>
+              <div className="flex justify-between text-slate-400 text-sm">
+                <span>Pajak (11%)</span>
+                <span className="font-medium text-slate-200">Rp {formatPrice(tax)}</span>
               </div>
             </div>
 
