@@ -45,7 +45,7 @@ export default function AdminMessages() {
       const msgs = await getChatMessages(chatId)
       setMessages(msgs || [])
       scrollToBottom()
-      
+
       // Update unread count locally
       setChats(prev => prev.map(c => c.id === chatId ? { ...c, unread_count: 0 } : c))
     } catch (err) {
@@ -57,9 +57,17 @@ export default function AdminMessages() {
     const token = getSessionToken()
     if (!token) return
 
-    let wsUrl = import.meta.env.VITE_API_BASE_URL
-      ? import.meta.env.VITE_API_BASE_URL.replace('http', 'ws').replace('/api', '/ws/chat')
-      : 'ws://localhost:8080/ws/chat'
+    let wsUrl = import.meta.env.VITE_WS_URL 
+      ? `${import.meta.env.VITE_WS_URL}/chat`
+      : import.meta.env.VITE_API_BASE_URL
+        ? import.meta.env.VITE_API_BASE_URL.replace('http', 'ws').replace('/api', '/ws/chat')
+        : 'ws://localhost:8080/ws/chat'
+
+    // Perbaikan agar tidak error jika URL base-nya berupa relative path
+    if (wsUrl.startsWith('/')) {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      wsUrl = `${protocol}//${window.location.host}${wsUrl}`
+    }
 
     wsUrl += `?token=${token}`
 
@@ -71,7 +79,7 @@ export default function AdminMessages() {
 
     socket.onmessage = (event) => {
       const incomingMsg = JSON.parse(event.data)
-      
+
       // Update current active messages if it belongs to this chat
       setMessages(prev => {
         // We use a functional update and check the activeChatId inside,
@@ -80,7 +88,7 @@ export default function AdminMessages() {
         // For simplicity, we just check activeChatId from closure. Wait, closure might be stale.
         return prev // we will handle this in another useEffect or via refs if needed
       })
-      
+
       // Let's just refetch everything for simplicity to keep chats list updated
       fetchChats()
     }
@@ -110,7 +118,7 @@ export default function AdminMessages() {
   const sendMessage = (e) => {
     e.preventDefault()
     if (!input.trim() || !ws.current || !activeChatId) return
-    
+
     const token = getSessionToken()
     ws.current.send(JSON.stringify({
       type: 'message',
@@ -118,7 +126,7 @@ export default function AdminMessages() {
       content: input,
       chat_id: activeChatId
     }))
-    
+
     setInput('')
   }
 
@@ -155,17 +163,16 @@ export default function AdminMessages() {
           ) : chats.map(chat => {
             const isActive = chat.id === activeChatId
             const initials = chat.user.full_name ? chat.user.full_name.substring(0, 2).toUpperCase() : chat.user.username.substring(0, 2).toUpperCase()
-            const timeStr = chat.last_message ? new Date(chat.last_message.created_at).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : ''
-            
+            const timeStr = chat.last_message ? new Date(chat.last_message.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''
+
             return (
               <div
                 key={chat.id}
                 onClick={() => setActiveChatId(chat.id)}
-                className={`p-3.5 rounded-2xl cursor-pointer transition-all border ${
-                  isActive
+                className={`p-3.5 rounded-2xl cursor-pointer transition-all border ${isActive
                     ? 'bg-teal-500/10 border-teal-500/30'
                     : 'hover:bg-slate-900/60 border-transparent hover:border-slate-800'
-                }`}
+                  }`}
               >
                 <div className="flex gap-3">
                   <div className="relative shrink-0">
@@ -241,8 +248,8 @@ export default function AdminMessages() {
             <>
               {messages.map((msg, idx) => {
                 const isAdmin = msg.sender_id !== activeChat?.user?.id
-                const showDate = idx === 0 || new Date(messages[idx-1].created_at).toDateString() !== new Date(msg.created_at).toDateString()
-                
+                const showDate = idx === 0 || new Date(messages[idx - 1].created_at).toDateString() !== new Date(msg.created_at).toDateString()
+
                 return (
                   <div key={msg.id} className="flex flex-col gap-5">
                     {showDate && (
@@ -252,7 +259,7 @@ export default function AdminMessages() {
                         </span>
                       </div>
                     )}
-                    
+
                     <div className={`flex gap-3 max-w-[85%] ${isAdmin ? 'self-end ml-auto flex-row-reverse' : ''}`}>
                       {/* Avatar */}
                       <div className="shrink-0 mt-auto">
@@ -272,11 +279,10 @@ export default function AdminMessages() {
                       </div>
 
                       <div className="flex flex-col gap-1">
-                        <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm border ${
-                          isAdmin 
-                            ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-br-none border-teal-500/30' 
+                        <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm border ${isAdmin
+                            ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-br-none border-teal-500/30'
                             : 'bg-slate-800/80 text-slate-200 rounded-bl-none border-slate-700/60'
-                        }`}>
+                          }`}>
                           {msg.content}
                         </div>
                         <span className={`text-[10px] text-slate-500 font-semibold ${isAdmin ? 'mr-1 text-right' : 'ml-1'}`}>

@@ -39,10 +39,10 @@ export default function FloatingChat() {
     try {
       const { chat_id } = await initChat()
       setChatId(chat_id)
-      
+
       const history = await getChatMessages(chat_id)
       setMessages(history || [])
-      
+
       connectWebSocket(chat_id)
       scrollToBottom()
     } catch (err) {
@@ -54,9 +54,17 @@ export default function FloatingChat() {
     const token = getSessionToken()
     if (!token) return
 
-    let wsUrl = import.meta.env.VITE_API_BASE_URL
-      ? import.meta.env.VITE_API_BASE_URL.replace('http', 'ws').replace('/api', '/ws/chat')
-      : 'ws://localhost:8080/ws/chat'
+    let wsUrl = import.meta.env.VITE_WS_URL 
+      ? `${import.meta.env.VITE_WS_URL}/chat`
+      : import.meta.env.VITE_API_BASE_URL
+        ? import.meta.env.VITE_API_BASE_URL.replace('http', 'ws').replace('/api', '/ws/chat')
+        : 'ws://localhost:8080/ws/chat'
+
+    // Perbaikan agar tidak error jika URL base-nya berupa relative path
+    if (wsUrl.startsWith('/')) {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      wsUrl = `${protocol}//${window.location.host}${wsUrl}`
+    }
 
     wsUrl += `?token=${token}`
 
@@ -89,7 +97,7 @@ export default function FloatingChat() {
   const sendMessage = (e) => {
     e.preventDefault()
     if (!input.trim() || !ws.current || ws.current.readyState !== WebSocket.OPEN) return
-    
+
     const token = getSessionToken()
     ws.current.send(JSON.stringify({
       type: 'message',
@@ -97,7 +105,7 @@ export default function FloatingChat() {
       content: input,
       chat_id: chatId
     }))
-    
+
     setInput('')
   }
 
@@ -153,29 +161,28 @@ export default function FloatingChat() {
               messages.map(msg => {
                 const isAdmin = msg.sender_id !== user?.id
                 return (
-                <div key={msg.id} className={`flex w-full ${isAdmin ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`flex gap-3 max-w-[85%] ${isAdmin ? '' : 'flex-row-reverse'}`}>
-                    
-                    {/* Avatar */}
-                    <div className="shrink-0 mt-auto">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-slate-100 shadow-sm border border-slate-700/50 bg-slate-800">
-                        {isAdmin ? 'AQ' : user?.email?.substring(0,2).toUpperCase()}
+                  <div key={msg.id} className={`flex w-full ${isAdmin ? 'justify-start' : 'justify-end'}`}>
+                    <div className={`flex gap-3 max-w-[85%] ${isAdmin ? '' : 'flex-row-reverse'}`}>
+
+                      {/* Avatar */}
+                      <div className="shrink-0 mt-auto">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-slate-100 shadow-sm border border-slate-700/50 bg-slate-800">
+                          {isAdmin ? 'AQ' : user?.email?.substring(0, 2).toUpperCase()}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <div className={`p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                        isAdmin 
-                          ? 'bg-slate-800/80 text-slate-200 rounded-bl-none border border-slate-700/50' 
-                          : 'bg-gradient-to-br from-teal-500 to-teal-600 text-slate-950 font-medium rounded-br-none'
-                      }`}>
-                        {msg.content}
+                      <div className="flex flex-col gap-1">
+                        <div className={`p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${isAdmin
+                            ? 'bg-slate-800/80 text-slate-200 rounded-bl-none border border-slate-700/50'
+                            : 'bg-gradient-to-br from-teal-500 to-teal-600 text-slate-950 font-medium rounded-br-none'
+                          }`}>
+                          {msg.content}
+                        </div>
+                        <span className={`text-[9px] text-slate-500 font-bold ${isAdmin ? 'ml-1' : 'mr-1 text-right'}`}>
+                          {new Date(msg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <span className={`text-[9px] text-slate-500 font-bold ${isAdmin ? 'ml-1' : 'mr-1 text-right'}`}>
-                        {new Date(msg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
                     </div>
                   </div>
-                </div>
                 )
               })
             )}
