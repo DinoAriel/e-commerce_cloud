@@ -48,9 +48,7 @@ export default function CartPage() {
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
   const shipping = 0
-  const taxRate = 0.11
-  const taxes = Math.round(subtotal * taxRate)
-  const total = subtotal + shipping + taxes
+  const total = subtotal + shipping
 
   const formatPrice = (price) => `Rp ${Number(price).toLocaleString('id-ID')}`
 
@@ -236,10 +234,6 @@ export default function CartPage() {
               <div className="flex justify-between items-center">
                 <span className="text-slate-400 text-sm">Ongkos Kirim</span>
                 <span className="text-emerald-400 font-bold text-sm">GRATIS</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 text-sm">Pajak (11%)</span>
-                <span className="text-slate-200 font-medium text-sm">{formatPrice(taxes)}</span>
               </div>
             </div>
 

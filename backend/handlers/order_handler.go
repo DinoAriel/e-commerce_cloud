@@ -86,10 +86,6 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 		totalAmount += ci.Price * ci.Quantity
 	}
 
-	// Tambahkan pajak 11% agar sesuai dengan frontend
-	tax := int(float64(totalAmount) * 0.11)
-	totalAmount += tax
-
 	var order models.Order
 	err = tx.QueryRow(c.Context(), `
 		INSERT INTO orders (user_id, total_amount, status, shipping_address)
