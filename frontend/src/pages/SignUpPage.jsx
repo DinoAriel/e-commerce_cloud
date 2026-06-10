@@ -28,7 +28,6 @@ export default function SignUpPage() {
         password: form.password,
         fullName: form.fullName // Assuming you'd want to handle this on the backend
       })
-      alert('Sign up successful! You can now log in.')
       navigate('/login')
     } catch (err) {
       alert(err.message || 'Gagal mendaftar')

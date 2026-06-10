@@ -177,7 +177,7 @@ func (h *OrderHandler) GetAllOrders(c *fiber.Ctx) error {
 		LEFT JOIN profiles p ON o.user_id = p.id
 		ORDER BY o.created_at DESC`)
 	if err != nil {
-		return models.Error(c, "Gagal mengambil semua orders", 500)
+		return models.Error(c, "Gagal mengambil semua orders: " + err.Error(), 500)
 	}
 	defer rows.Close()
 
