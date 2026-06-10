@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAuctions, getProducts, placeBid } from '../../lib/api'
+import { getAuctions, getProducts, placeBid, createAuction } from '../../lib/api'
 
 // Helper for formatting price
 const fmtPrice = (price) => `Rp ${Number(price).toLocaleString('id-ID')}`
@@ -108,24 +108,7 @@ export default function AdminAuctions() {
     // Wait, let's look at api.js imports. In api.js, there is no createAuction export!
     // Ah, wait! Is there? No, let's verify. Let's do a request dynamically.
     try {
-      const headers = { 'Content-Type': 'application/json' }
-      
-      // Let's get auth token
-      const sessionStr = localStorage.getItem('sb-lymszumtdfbtrdexqrvv-auth-token')
-      if (sessionStr) {
-        const sessionObj = JSON.parse(sessionStr)
-        if (sessionObj?.access_token) {
-          headers['Authorization'] = `Bearer ${sessionObj.access_token}`
-        }
-      }
-      
-      const res = await fetch((import.meta.env.VITE_API_BASE_URL || '/api') + '/auctions', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      })
-      const json = await res.json()
-      if (!res.ok || !json.success) throw new Error(json.error || 'Gagal membuat lelang')
+      await createAuction(payload)
 
       setSuccessMsg('Lelang baru berhasil dijadwalkan!')
       setShowModal(false)

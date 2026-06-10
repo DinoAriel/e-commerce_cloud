@@ -4,6 +4,7 @@ import (
 	"backend/config"
 	"backend/database"
 	"backend/routes"
+	"context"
 	"fmt"
 	"log"
 
@@ -22,6 +23,19 @@ func main() {
 
 	pool := database.Connect(cfg)
 	defer pool.Close()
+
+	// Auto-Migrate missing columns for orders table
+	migrationQueries := []string{
+		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS rating INT;",
+		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS review TEXT;",
+		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS snap_token TEXT;",
+	}
+	for _, q := range migrationQueries {
+		_, err := pool.Exec(context.Background(), q)
+		if err != nil {
+			fmt.Printf("Gagal menjalankan migrasi: %s -> %v\n", q, err)
+		}
+	}
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {

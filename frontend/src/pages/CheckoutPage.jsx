@@ -81,7 +81,12 @@ export default function CheckoutPage() {
       if (user) {
         createdOrder = await createOrder({
           user_id: user.id,
-          shipping_address: formData.address || 'Alamat Default'
+          shipping_address: formData.address || 'Alamat Default',
+          items: items.map(item => ({
+            product_id: item.id,
+            quantity: item.qty,
+            price: item.price
+          }))
         })
       }
       

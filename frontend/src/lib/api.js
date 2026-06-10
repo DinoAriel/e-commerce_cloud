@@ -116,6 +116,11 @@ export const getAuctions = (status) => {
   return request(`/auctions${qs}`)
 }
 
+export const createAuction = (data) => request('/auctions', {
+  method: 'POST',
+  body: JSON.stringify(data),
+})
+
 export const getAuctionDetail = (id) => request(`/auctions/${id}`)
 
 export const placeBid = (auctionId, data) => request(`/auctions/${auctionId}/bids`, {

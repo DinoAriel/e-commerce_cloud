@@ -37,50 +37,28 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 		return models.Error(c, err.Error(), 400)
 	}
 
+	if len(input.Items) == 0 {
+		return models.Error(c, "Cart kosong, tidak bisa membuat order", 400)
+	}
+
 	tx, err := h.DB.Begin(c.Context())
 	if err != nil {
 		return models.Error(c, "Gagal memulai transaksi", 500)
 	}
 	defer tx.Rollback(c.Context())
 
-	rows, err := tx.Query(c.Context(), `
-		SELECT ci.id, ci.product_id, ci.quantity, p.price, p.stock, p.is_active
-		FROM cart_items ci
-		JOIN products p ON ci.product_id = p.id
-		WHERE ci.user_id = $1::uuid`, input.UserID)
-	if err != nil {
-		return models.Error(c, "Gagal mengambil cart", 500)
-	}
-
-	type cartRow struct {
-		ID        string
-		ProductID string
-		Quantity  int
-		Price     int
-		Stock     int
-		IsActive  bool
-	}
-	var cartItems []cartRow
-	for rows.Next() {
-		var ci cartRow
-		if err := rows.Scan(&ci.ID, &ci.ProductID, &ci.Quantity, &ci.Price, &ci.Stock, &ci.IsActive); err != nil {
-			rows.Close()
-			return models.Error(c, "Gagal scan cart", 500)
-		}
-		cartItems = append(cartItems, ci)
-	}
-	rows.Close()
-
-	if len(cartItems) == 0 {
-		return models.Error(c, "Cart kosong, tidak bisa membuat order", 400)
-	}
-
 	totalAmount := 0
-	for _, ci := range cartItems {
-		if !ci.IsActive {
+	for _, ci := range input.Items {
+		var stock int
+		var isActive bool
+		err := tx.QueryRow(c.Context(), `SELECT stock, is_active FROM products WHERE id = $1::uuid`, ci.ProductID).Scan(&stock, &isActive)
+		if err != nil {
+			return models.Error(c, "Produk tidak ditemukan", 404)
+		}
+		if !isActive {
 			return models.Error(c, "Produk tidak aktif", 400)
 		}
-		if ci.Stock < ci.Quantity {
+		if stock < ci.Quantity {
 			return models.Error(c, "Stok produk tidak cukup", 400)
 		}
 		totalAmount += ci.Price * ci.Quantity
@@ -98,7 +76,7 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 	}
 
 	var orderItems []models.OrderItemWithProduct
-	for _, ci := range cartItems {
+	for _, ci := range input.Items {
 		var oi models.OrderItemWithProduct
 		err := tx.QueryRow(c.Context(), `
 			INSERT INTO order_items (order_id, product_id, quantity, price)
@@ -122,8 +100,6 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 
 		tx.Exec(c.Context(), `UPDATE products SET stock = stock - $1 WHERE id = $2::uuid`, ci.Quantity, ci.ProductID)
 	}
-
-	tx.Exec(c.Context(), `DELETE FROM cart_items WHERE user_id = $1::uuid`, input.UserID)
 
 	// Midtrans Snap Token Request
 	serverKey := strings.TrimSpace(h.Cfg.MidtransServerKey)

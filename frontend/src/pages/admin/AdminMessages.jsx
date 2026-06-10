@@ -162,7 +162,8 @@ export default function AdminMessages() {
             <div className="text-center text-slate-500 text-sm mt-10">Belum ada obrolan</div>
           ) : chats.map(chat => {
             const isActive = chat.id === activeChatId
-            const initials = chat.user.full_name ? chat.user.full_name.substring(0, 2).toUpperCase() : chat.user.username.substring(0, 2).toUpperCase()
+            const username = chat.user.full_name || chat.user.username || 'User'
+            const initials = username.substring(0, 2).toUpperCase()
             const timeStr = chat.last_message ? new Date(chat.last_message.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''
 
             return (
@@ -217,7 +218,7 @@ export default function AdminMessages() {
                     <img src={activeChat.user.avatar_url} alt={activeChat.user.username} className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-teal-400 font-bold flex items-center justify-center text-sm">
-                      {activeChat.user.full_name ? activeChat.user.full_name.substring(0, 2).toUpperCase() : activeChat.user.username.substring(0, 2).toUpperCase()}
+                      {(activeChat.user.full_name || activeChat.user.username || 'User').substring(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -268,7 +269,7 @@ export default function AdminMessages() {
                             <img src={activeChat.user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shadow-sm border border-slate-700" />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-teal-400 font-bold flex items-center justify-center text-[10px]">
-                              {activeChat.user.full_name ? activeChat.user.full_name.substring(0, 2).toUpperCase() : activeChat.user.username.substring(0, 2).toUpperCase()}
+                              {(activeChat.user.full_name || activeChat.user.username || 'User').substring(0, 2).toUpperCase()}
                             </div>
                           )
                         ) : (

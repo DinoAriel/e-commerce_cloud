@@ -36,9 +36,16 @@ type OrderWithItems struct {
 	Items []OrderItemWithProduct `json:"items"`
 }
 
+type CartItemInput struct {
+	ProductID string `json:"product_id"`
+	Quantity  int    `json:"quantity"`
+	Price     int    `json:"price"`
+}
+
 type CreateOrderInput struct {
-	UserID          string `json:"user_id"`
-	ShippingAddress string `json:"shipping_address"`
+	UserID          string          `json:"user_id"`
+	ShippingAddress string          `json:"shipping_address"`
+	Items           []CartItemInput `json:"items"`
 }
 
 type UpdateOrderStatusInput struct {
