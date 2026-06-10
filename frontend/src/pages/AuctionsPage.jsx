@@ -67,7 +67,7 @@ function CountdownBadge({ endTime, short = false }) {
     }
     return (
         <span className={`text-sm font-bold tabular-nums ${urgent ? 'text-red-400' : 'text-white/80'}`}>
-            {pad(t.h)}:{pad(t.m)}:{pad(t.s)} REMAINING
+            {t.d > 0 ? `${t.d}d ` : ''}{pad(t.h)}:{pad(t.m)}:{pad(t.s)} REMAINING
         </span>
     )
 }
