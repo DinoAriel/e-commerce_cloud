@@ -282,7 +282,7 @@ export default function CheckoutPage() {
               {items.map(item => (
                 <div key={item.id} className="flex gap-4">
                   <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden border border-slate-800 relative bg-slate-950">
-                    <img src={item.image || '/images/placeholder.avif'} alt={item.name} className="w-full h-full object-cover" />
+                    <img src={item.image_url || item.image || '/images/discus.png'} alt={item.name} className="w-full h-full object-cover" />
                     <span className="absolute -top-2 -right-2 bg-teal-500 text-slate-950 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
                       {item.qty}
                     </span>
