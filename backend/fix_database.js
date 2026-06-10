@@ -1,7 +1,8 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const { Pool } = require('pg')
 
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:Aquamarket123!@ecommerce-db.cxakyk44ej9y.ap-southeast-2.rds.amazonaws.com:5432/postgres?sslmode=require',
+  connectionString: 'postgresql://postgres:Aquamarket123!@ecommerce-db.cxakyk44ej9y.ap-southeast-2.rds.amazonaws.com:5432/postgres',
   ssl: {
     rejectUnauthorized: false
   }
