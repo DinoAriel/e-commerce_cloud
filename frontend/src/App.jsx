@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -32,6 +33,10 @@ function AppLayout() {
   const location = useLocation()
   const isAuthPage = AUTH_ROUTES.includes(location.pathname)
   const isAdminPage = location.pathname.startsWith('/admin')
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   const showHeaderFooter = !isAuthPage && !isAdminPage
 
