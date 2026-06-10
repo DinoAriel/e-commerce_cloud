@@ -107,8 +107,8 @@ func (h *AuctionHandler) GetMyAuctions(c *fiber.Ctx) error {
 }
 
 func (h *AuctionHandler) DeleteAuction(c *fiber.Ctx) error {
-	user := c.Locals("user").(map[string]interface{})
-	if user["role"] != "admin" {
+	role, ok := c.Locals("user_role").(string)
+	if !ok || role != "admin" {
 		return models.Error(c, "Hanya admin yang dapat menghapus lelang", 403)
 	}
 
@@ -117,7 +117,7 @@ func (h *AuctionHandler) DeleteAuction(c *fiber.Ctx) error {
 		return models.Error(c, err.Error(), 400)
 	}
 
-	cmdTag, err := h.DB.Exec(c.Context(), "DELETE FROM auctions WHERE id = $1", id)
+	cmdTag, err := h.DB.Exec(c.Context(), "DELETE FROM auctions WHERE id = $1::uuid", id)
 	if err != nil {
 		return models.Error(c, "Gagal menghapus lelang", 500)
 	}
