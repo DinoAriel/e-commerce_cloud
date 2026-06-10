@@ -27,6 +27,8 @@ import AdminAuctions from './pages/admin/AdminAuctions'
 import AdminOrders from './pages/admin/AdminOrders'
 import AdminMessages from './pages/admin/AdminMessages'
 
+import MyAuctions from './pages/MyAuctions'
+
 const AUTH_ROUTES = ['/login', '/signup']
 
 function AppLayout() {
@@ -56,6 +58,7 @@ function AppLayout() {
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/my-auctions" element={<ProtectedRoute><MyAuctions /></ProtectedRoute>} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>

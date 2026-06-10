@@ -118,18 +118,26 @@ export default function AuctionsPage() {
     const [bidAmountInput, setBidAmountInput] = useState('')
 
     useEffect(() => {
-        async function fetchAuctions() {
+        async function fetchAuctions(isPolling = false) {
             try {
-                setLoading(true)
+                if (!isPolling) setLoading(true)
                 const data = await getAuctions('active')
                 setAuctions(data || [])
             } catch (err) {
-                setError(err.message || 'Gagal memuat data lelang')
+                if (!isPolling) setError(err.message || 'Gagal memuat data lelang')
             } finally {
-                setLoading(false)
+                if (!isPolling) setLoading(false)
             }
         }
+        
         fetchAuctions()
+        
+        // Auto-polling setiap 10 detik untuk update bid terbaru
+        const intervalId = setInterval(() => {
+            fetchAuctions(true)
+        }, 10000)
+        
+        return () => clearInterval(intervalId)
     }, [])
 
     // Derive end times from auction data

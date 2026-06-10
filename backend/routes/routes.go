@@ -111,6 +111,7 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	auctions := app.Group("/api/auctions")
 	auctions.Get("/", auctionHandler.GetAuctions)
 	auctions.Get("", auctionHandler.GetAuctions)
+	auctions.Get("/my", auth, auctionHandler.GetMyAuctions)
 	auctions.Get("/:id", auctionHandler.GetAuctionDetail)
 	auctions.Get("/:id/bids", auctionHandler.GetAuctionBids)
 	auctions.Post("/", auth, auctionHandler.CreateAuction)

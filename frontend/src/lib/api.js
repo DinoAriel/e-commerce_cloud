@@ -116,6 +116,8 @@ export const getAuctions = (status) => {
   return request(`/auctions${qs}`)
 }
 
+export const getMyAuctions = () => request('/auctions/my')
+
 export const createAuction = (data) => request('/auctions', {
   method: 'POST',
   body: JSON.stringify(data),

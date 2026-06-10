@@ -65,6 +65,47 @@ func (h *AuctionHandler) GetAuctions(c *fiber.Ctx) error {
 	return models.Success(c, auctions)
 }
 
+func (h *AuctionHandler) GetMyAuctions(c *fiber.Ctx) error {
+	user := c.Locals("user").(map[string]interface{})
+	userID := user["id"].(string)
+
+	query := `
+		SELECT DISTINCT a.id, a.product_id, a.starting_price AS start_price, a.current_bid, a.start_time, a.end_time,
+		       a.status, a.created_at,
+		       p.id, p.name, p.species, p.price, p.description, p.image_url,
+		       p.badge, p.category_id, p.stock, p.is_active, p.created_at
+		FROM auctions a
+		JOIN products p ON a.product_id = p.id
+		JOIN bids b ON b.auction_id = a.id
+		WHERE b.user_id = $1
+		ORDER BY a.created_at DESC`
+
+	rows, err := h.DB.Query(c.Context(), query, userID)
+	if err != nil {
+		return models.Error(c, "Gagal mengambil riwayat lelang", 500)
+	}
+	defer rows.Close()
+
+	var auctions []models.AuctionWithProduct
+	for rows.Next() {
+		var a models.AuctionWithProduct
+		if err := rows.Scan(&a.ID, &a.ProductID, &a.StartPrice, &a.CurrentBid, &a.StartTime, &a.EndTime,
+			&a.Status, &a.CreatedAt,
+			&a.Product.ID, &a.Product.Name, &a.Product.Species, &a.Product.Price,
+			&a.Product.Description, &a.Product.ImageURL, &a.Product.Badge, &a.Product.CategoryID,
+			&a.Product.Stock, &a.Product.IsActive, &a.Product.CreatedAt); err != nil {
+			return models.Error(c, "Gagal scan auction", 500)
+		}
+		auctions = append(auctions, a)
+	}
+
+	if auctions == nil {
+		auctions = []models.AuctionWithProduct{}
+	}
+
+	return models.Success(c, auctions)
+}
+
 func (h *AuctionHandler) CreateAuction(c *fiber.Ctx) error {
 	var input models.CreateAuctionInput
 	if err := c.BodyParser(&input); err != nil {

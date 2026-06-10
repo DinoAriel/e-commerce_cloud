@@ -3,6 +3,7 @@ package main
 import (
 	"backend/config"
 	"backend/database"
+	"backend/jobs"
 	"backend/routes"
 	"context"
 	"fmt"
@@ -62,6 +63,9 @@ func main() {
 	})
 
 	routes.Setup(app, pool, cfg)
+	
+	// Start background jobs
+	jobs.StartAuctionCron(pool)
 
 	address := fmt.Sprintf(":%s", cfg.Port)
 	fmt.Printf("Server berjalan di http://localhost:%s\n", cfg.Port)
