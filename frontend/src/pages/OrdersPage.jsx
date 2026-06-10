@@ -178,7 +178,7 @@ export default function OrdersPage() {
                             Pesanan Diterima
                           </button>
                         )}
-                        {(order.status === 'done' || order.status === 'paid') && !order.rating && (
+                        {order.status === 'done' && !order.rating && (
                           <button onClick={() => setRatingInput({ orderId: order.id, rating: 5, review: '' })} className="px-5 py-2 border border-teal-500/50 text-teal-400 bg-teal-500/10 font-bold rounded-xl hover:bg-teal-500 hover:text-slate-950 transition-colors text-sm">
                             Nilai Produk
                           </button>
