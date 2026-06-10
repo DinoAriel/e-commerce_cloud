@@ -185,16 +185,7 @@ export default function AuctionsPage() {
         }
     }
 
-    const handleAddToCart = (auction) => {
-        const product = auction.product
-        dispatch(addToCart({
-            id: product.id,
-            name: product.name,
-            price: auction.current_bid || auction.start_price,
-            image: product.image_url,
-            image_url: product.image_url,
-        }))
-    }
+
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
@@ -311,33 +302,21 @@ export default function AuctionsPage() {
                                 </div>
                                 {isEnded(hotAuctions[0].endTime) ? (
                                     <div className="flex gap-3">
-                                        <button
-                                            onClick={() => handleAddToCart(hotAuctions[0])}
-                                            className="flex-1 py-3.5 rounded-2xl font-bold text-sm bg-teal-500 text-slate-950 hover:bg-teal-400 transition-all duration-300 active:scale-95 shadow-md"
-                                        >
-                                            Add to Cart
-                                        </button>
-                                        <span className="px-4 py-3.5 rounded-2xl font-semibold text-sm bg-slate-800 text-slate-400 border border-slate-700">
-                                            Berakhir
+                                        <span className="flex-1 text-center py-3.5 rounded-2xl font-semibold text-sm bg-slate-800 text-slate-400 border border-slate-700">
+                                            Lelang Telah Berakhir
                                         </span>
                                     </div>
                                 ) : (
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => handleBid(hotAuctions[0])}
-                                            className={`flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 active:scale-95 shadow-md
-                           ${biddingId === hotAuctions[0].id
-                                                     ? 'bg-emerald-500 text-white shadow-emerald-950/20'
-                                                     : 'bg-slate-950/80 backdrop-blur-sm text-white hover:bg-slate-900 border border-slate-800'
-                                                 }`}
+                                            className={`w-full py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 active:scale-95 shadow-md
+                                                ${biddingId === hotAuctions[0].id
+                                                    ? 'bg-emerald-500 text-white shadow-emerald-950/20'
+                                                    : 'bg-teal-500 text-slate-950 hover:bg-teal-400'
+                                                }`}
                                         >
                                             {biddingId === hotAuctions[0].id ? 'Bid Placed ✓' : 'Pasang Bid Instan'}
-                                        </button>
-                                        <button
-                                            onClick={() => handleAddToCart(hotAuctions[0])}
-                                            className="py-3.5 px-5 rounded-2xl font-bold text-sm bg-teal-500 text-slate-950 hover:bg-teal-400 transition-all duration-300 active:scale-95 shadow-md"
-                                        >
-                                            Add to Cart
                                         </button>
                                     </div>
                                 )}
