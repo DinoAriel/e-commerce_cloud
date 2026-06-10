@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useAuth } from '../lib/auth'
-import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -14,13 +13,12 @@ export default function Navbar() {
 
   const items = useSelector(state => state.cart.items)
   const cartCount = items.reduce((sum, item) => sum + item.qty, 0)
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    logout()
     setProfileOpen(false)
-    navigate('/login')
   }
 
   const navLinks = [

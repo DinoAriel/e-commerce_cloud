@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth'
-import { supabase } from '../../lib/supabase'
 
 export default function AdminSidebar() {
   const location = useLocation()
@@ -56,8 +55,7 @@ export default function AdminSidebar() {
   ]
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
+    logout()
   }
 
   return (

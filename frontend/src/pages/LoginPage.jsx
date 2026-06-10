@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { useAuth } from '../lib/auth'
+import { loginUser } from '../lib/api'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -13,55 +14,35 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
+  const { login } = useAuth()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setErrorMsg('')
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
-
-    if (error) {
-      setLoading(false)
-      setErrorMsg(error.message)
-      return
-    }
-
     try {
-      // Ambil profile untuk cek role
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      setLoading(false)
-
-      if (profile && profile.role === 'admin') {
-        navigate('/admin')
-      } else {
-        navigate(redirectTo)
+      const response = await loginUser({ email, password })
+      if (response && response.session) {
+        // Save to context and localStorage
+        login(response.session.access_token, response.session.user)
+        
+        if (response.session.user.role === 'admin') {
+          navigate('/admin')
+        } else {
+          navigate(redirectTo)
+        }
       }
     } catch (err) {
-      console.error('Error checking user role:', err)
+      console.error('Login error:', err)
+      setErrorMsg(err.message || 'Gagal masuk. Periksa kembali email dan password Anda.')
+    } finally {
       setLoading(false)
-      navigate(redirectTo)
     }
   }
 
   const handleGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}${redirectTo}`
-      }
-    })
-    if (error) {
-      console.error('Google sign-in error:', error)
-      setErrorMsg(error.message)
-    }
+    setErrorMsg('Login dengan Google sedang dinonaktifkan dalam mode Custom Auth.')
   }
 
   return (

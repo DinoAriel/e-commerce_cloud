@@ -22,13 +22,51 @@ func Connect(cfg config.Config) *pgxpool.Pool {
 
 	// Auto-migration
 	_, migrationErr := pool.Exec(context.Background(), `
-		ALTER TABLE orders ADD COLUMN IF NOT EXISTS rating INT;
-		ALTER TABLE orders ADD COLUMN IF NOT EXISTS review TEXT;
-		
-		ALTER TABLE profiles ADD COLUMN IF NOT EXISTS username TEXT;
-		ALTER TABLE profiles ADD COLUMN IF NOT EXISTS gender TEXT;
-		ALTER TABLE profiles ADD COLUMN IF NOT EXISTS birth_date TEXT;
-		ALTER TABLE profiles ALTER COLUMN birth_date TYPE TEXT;
+		CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+		CREATE TABLE IF NOT EXISTS users (
+			id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			email TEXT UNIQUE NOT NULL,
+			password_hash TEXT NOT NULL,
+			role TEXT DEFAULT 'user',
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+		);
+
+		CREATE TABLE IF NOT EXISTS profiles (
+			id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+			username TEXT,
+			full_name TEXT,
+			phone TEXT,
+			address TEXT,
+			avatar_url TEXT,
+			gender TEXT,
+			birth_date TEXT,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+		);
+
+		-- Create products table if it doesn't exist
+		CREATE TABLE IF NOT EXISTS products (
+			id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			name TEXT NOT NULL,
+			description TEXT,
+			price DECIMAL(10,2) NOT NULL,
+			stock INT DEFAULT 0,
+			category_id UUID,
+			image_url TEXT,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+		);
+
+		-- Create orders table if it doesn't exist
+		CREATE TABLE IF NOT EXISTS orders (
+			id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+			status TEXT DEFAULT 'pending',
+			total DECIMAL(10,2) NOT NULL,
+			rating INT,
+			review TEXT,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+		);
+
 
 		CREATE TABLE IF NOT EXISTS user_addresses (
 			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -63,6 +101,6 @@ func Connect(cfg config.Config) *pgxpool.Pool {
 		fmt.Println("Migrasi database berhasil.")
 	}
 
-	fmt.Println("Terhubung ke database Supabase!")
+	fmt.Println("Terhubung ke database (AWS RDS)!")
 	return pool
 }

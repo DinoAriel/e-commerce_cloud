@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from './supabase'
 
-const AuthContext = createContext({ user: null, session: null, loading: true })
+const AuthContext = createContext({ user: null, session: null, loading: true, login: () => {}, logout: () => {} })
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -9,39 +8,38 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      
-      if (session?.user) {
-        // Automatically inject role from app_metadata if present
-        session.user.role = session.user.app_metadata?.role || session.user.user_metadata?.role || session.user.role || 'user'
-        if (session.user.email === 'jyu.jur5@gmail.com') {
-          session.user.role = 'admin'
-        }
+    const token = localStorage.getItem('access_token')
+    const userData = localStorage.getItem('user_data')
+    
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData)
+        setSession({ access_token: token })
+        setUser(parsedUser)
+      } catch (e) {
+        console.error(e)
       }
-      
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session)
-      if (session?.user) {
-        // Automatically inject role from app_metadata if present
-        session.user.role = session.user.app_metadata?.role || session.user.user_metadata?.role || session.user.role || 'user'
-        if (session.user.email === 'jyu.jur5@gmail.com') {
-          session.user.role = 'admin'
-        }
-      }
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
+    }
+    setLoading(false)
   }, [])
 
+  const login = (token, userData) => {
+    localStorage.setItem('access_token', token)
+    localStorage.setItem('user_data', JSON.stringify(userData))
+    setSession({ access_token: token })
+    setUser(userData)
+  }
+
+  const logout = () => {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('user_data')
+    setSession(null)
+    setUser(null)
+    window.location.href = '/login'
+  }
+
   return (
-    <AuthContext.Provider value={{ user, session, loading }}>
+    <AuthContext.Provider value={{ user, session, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

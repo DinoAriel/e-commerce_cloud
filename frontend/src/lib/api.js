@@ -1,40 +1,13 @@
-import { supabase } from './supabase'
-
 const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
-
-let cachedToken = null
-let tokenExpiry = 0
 
 async function getAuthHeaders() {
   const headers = { 'Content-Type': 'application/json' }
-
-  const now = Date.now()
-  if (cachedToken && now < tokenExpiry) {
-    if (cachedToken) headers['Authorization'] = `Bearer ${cachedToken}`
-    return headers
-  }
-
-  const { data: { session } } = await supabase.auth.getSession()
-  if (session?.access_token) {
-    cachedToken = session.access_token
-    tokenExpiry = (session.expires_at || 0) * 1000 - 60000
-    headers['Authorization'] = `Bearer ${session.access_token}`
-  } else {
-    cachedToken = null
-    tokenExpiry = 0
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
   }
   return headers
 }
-
-supabase.auth.onAuthStateChange((_event, session) => {
-  if (session?.access_token) {
-    cachedToken = session.access_token
-    tokenExpiry = (session.expires_at || 0) * 1000 - 60000
-  } else {
-    cachedToken = null
-    tokenExpiry = 0
-  }
-})
 
 async function request(url, options = {}) {
   const headers = await getAuthHeaders()
@@ -134,16 +107,7 @@ export const getChats = () => request('/chats')
 export const getChatMessages = (id) => request(`/chats/${id}/messages`)
 export const initChat = () => request('/chats/init', { method: 'POST' })
 export const getSessionToken = () => {
-  const sessionData = localStorage.getItem('sb-lymszumtdfbtrdexqrvv-auth-token')
-  if (sessionData) {
-    try {
-      const parsed = JSON.parse(sessionData)
-      return parsed.access_token
-    } catch (e) {
-      console.error(e)
-    }
-  }
-  return null
+  return localStorage.getItem('access_token')
 }
 
 
@@ -179,6 +143,16 @@ export const uploadImage = async (file) => {
   if (!res.ok || !json.success) throw new Error(json.error || 'Gagal mengunggah gambar')
   return json.data
 }
+
+export const loginUser = (data) => request('/auth/login', {
+  method: 'POST',
+  body: JSON.stringify(data),
+})
+
+export const registerUser = (data) => request('/auth/register', {
+  method: 'POST',
+  body: JSON.stringify(data),
+})
 
 // Addresses
 export const getUserAddresses = (userId) => request(`/addresses/user/${userId}`)

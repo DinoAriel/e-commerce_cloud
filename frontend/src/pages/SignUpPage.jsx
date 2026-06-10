@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { registerUser } from '../lib/api'
 
 export default function SignUpPage() {
   const navigate = useNavigate()
@@ -22,37 +22,23 @@ export default function SignUpPage() {
     if (form.password !== form.confirm) return
     setLoading(true)
     
-    const { data, error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        data: {
-          full_name: form.fullName,
-        }
-      }
-    })
-
-    setLoading(false)
-
-    if (error) {
-      alert(error.message)
-    } else {
+    try {
+      await registerUser({
+        email: form.email,
+        password: form.password,
+        fullName: form.fullName // Assuming you'd want to handle this on the backend
+      })
       alert('Sign up successful! You can now log in.')
       navigate('/login')
+    } catch (err) {
+      alert(err.message || 'Gagal mendaftar')
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`
-      }
-    })
-    if (error) {
-      console.error('Google sign-in error:', error)
-      alert(error.message)
-    }
+    alert('Login dengan Google sedang dinonaktifkan dalam mode Custom Auth.')
   }
 
   return (

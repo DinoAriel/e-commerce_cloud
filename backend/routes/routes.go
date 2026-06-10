@@ -40,6 +40,10 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	// WebSocket Route
 	app.Get("/ws/chat", auth, websocket.New(chatHandler.HandleWebSocket))
 
+	// Auth (public)
+	app.Post("/api/auth/register", handlers.Register(pool))
+	app.Post("/api/auth/login", handlers.Login(pool))
+
 	// Products (GET public, write needs auth)
 	products := app.Group("/api/products")
 	products.Get("/", productHandler.GetProducts)
