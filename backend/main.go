@@ -27,6 +27,7 @@ func main() {
 	// Auto-Migrate missing columns for orders table
 	migrationQueries := []string{
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS total_amount INT NOT NULL DEFAULT 0;",
+		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address TEXT NOT NULL DEFAULT '';",
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS rating INT;",
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS review TEXT;",
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS snap_token TEXT;",
