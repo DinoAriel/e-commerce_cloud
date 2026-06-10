@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAuctions, getProducts, placeBid, createAuction } from '../../lib/api'
+import { getAuctions, getProducts, placeBid, createAuction, deleteAuction } from '../../lib/api'
 
 // Helper for formatting price
 const fmtPrice = (price) => `Rp ${Number(price).toLocaleString('id-ID')}`
@@ -60,6 +60,19 @@ export default function AdminAuctions() {
       setError(err.message || 'Gagal memuat data lelang')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteAuction = async (id) => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus lelang ini? Semua riwayat bid pada lelang ini juga akan terhapus.')) return
+    
+    try {
+      await deleteAuction(id)
+      setSuccessMsg('Lelang berhasil dihapus')
+      fetchData() // Refresh list
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Gagal menghapus lelang')
     }
   }
 
@@ -232,6 +245,14 @@ export default function AdminAuctions() {
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 mb-1 tracking-wider uppercase">Sisa Waktu</p>
                     <p className="font-bold text-slate-200 text-base"><LiveCountdown endTimeStr={auction.end_time} /></p>
+                  </div>
+                  <div className="ml-4">
+                    <button
+                      onClick={() => handleDeleteAuction(auction.id)}
+                      className="px-3 py-1.5 bg-red-900/30 text-red-400 hover:bg-red-900/50 hover:text-red-300 rounded-lg text-sm font-semibold transition-colors border border-red-900/50"
+                    >
+                      Hapus
+                    </button>
                   </div>
                 </div>
                 

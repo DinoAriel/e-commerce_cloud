@@ -117,6 +117,7 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	auctions.Post("/", auth, auctionHandler.CreateAuction)
 	auctions.Post("", auth, auctionHandler.CreateAuction)
 	auctions.Post("/:id/bids", auth, auctionHandler.PlaceBid)
+	auctions.Delete("/:id", auth, auctionHandler.DeleteAuction)
 
 	// Uploads
 	app.Post("/api/upload", auth, uploadHandler.UploadImage)

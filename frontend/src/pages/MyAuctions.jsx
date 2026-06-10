@@ -60,7 +60,7 @@ export default function MyAuctions() {
             <h1 className="text-3xl font-bold text-white mb-8 border-b border-white/10 pb-4">Riwayat Lelang Saya</h1>
 
             {auctions.length === 0 ? (
-                <div className="bg-[#1B2237] rounded-2xl p-10 text-center border border-white/5">
+                <div className="bg-slate-900/40 rounded-2xl p-10 text-center border border-slate-800/80 shadow-xl">
                     <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -77,8 +77,8 @@ export default function MyAuctions() {
                     {auctions.map(auction => {
                         const isEnded = auction.status === 'ended' || new Date(auction.end_time).getTime() <= Date.now()
                         return (
-                            <div key={auction.id} className="bg-[#1B2237] rounded-xl overflow-hidden border border-white/5 hover:border-teal-500/30 transition-all group shadow-xl shadow-black/20">
-                                <div className="h-48 relative overflow-hidden bg-slate-900">
+                            <div key={auction.id} className="bg-slate-900/40 rounded-xl overflow-hidden border border-slate-800/80 hover:border-teal-500/30 transition-all group shadow-xl shadow-black/20">
+                                <div className="h-48 relative overflow-hidden bg-slate-950">
                                     <img 
                                         src={auction.product.image_url || 'https://via.placeholder.com/400x300'} 
                                         alt={auction.product.name}
@@ -97,7 +97,7 @@ export default function MyAuctions() {
                                     <h3 className="font-bold text-lg text-white mb-1 group-hover:text-teal-400 transition-colors">{auction.product.name}</h3>
                                     <p className="text-xs text-slate-400 italic mb-4">{auction.product.species || 'Spesies tidak diketahui'}</p>
                                     
-                                    <div className="bg-slate-900/50 rounded-lg p-3 grid grid-cols-2 gap-2 text-sm border border-white/5">
+                                    <div className="bg-slate-950/50 rounded-lg p-3 grid grid-cols-2 gap-2 text-sm border border-slate-800/80">
                                         <div>
                                             <p className="text-slate-500 text-xs">Bid Terakhir</p>
                                             <p className="font-bold text-white">{fmtPrice(auction.current_bid)}</p>
@@ -111,8 +111,8 @@ export default function MyAuctions() {
                                     </div>
 
                                     <div className="mt-4 flex gap-2">
-                                        <Link to={`/auctions/${auction.id}`} className="flex-1 text-center py-2 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-lg transition-colors border border-white/5">
-                                            Lihat Detail
+                                        <Link to={`/auctions`} className="flex-1 text-center py-2 bg-slate-800/50 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg transition-colors border border-slate-700/50">
+                                            Lihat Lelang
                                         </Link>
                                     </div>
                                 </div>

@@ -106,6 +106,29 @@ func (h *AuctionHandler) GetMyAuctions(c *fiber.Ctx) error {
 	return models.Success(c, auctions)
 }
 
+func (h *AuctionHandler) DeleteAuction(c *fiber.Ctx) error {
+	user := c.Locals("user").(map[string]interface{})
+	if user["role"] != "admin" {
+		return models.Error(c, "Hanya admin yang dapat menghapus lelang", 403)
+	}
+
+	id := c.Params("id")
+	if err := middleware.ValidateUUID("id", id); err != nil {
+		return models.Error(c, err.Error(), 400)
+	}
+
+	cmdTag, err := h.DB.Exec(c.Context(), "DELETE FROM auctions WHERE id = $1", id)
+	if err != nil {
+		return models.Error(c, "Gagal menghapus lelang", 500)
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return models.Error(c, "Lelang tidak ditemukan", 404)
+	}
+
+	return models.Success(c, "Lelang berhasil dihapus")
+}
+
 func (h *AuctionHandler) CreateAuction(c *fiber.Ctx) error {
 	var input models.CreateAuctionInput
 	if err := c.BodyParser(&input); err != nil {

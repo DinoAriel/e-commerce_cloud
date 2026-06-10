@@ -162,18 +162,22 @@ export default function Navbar() {
                     >
                       Profile
                     </button>
-                    <button
-                      onClick={() => { setProfileOpen(false); navigate('/orders') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
-                    >
-                      Pesanan Saya
-                    </button>
-                    <button
-                      onClick={() => { setProfileOpen(false); navigate('/my-auctions') }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
-                    >
-                      Lelang Saya
-                    </button>
+                    {user.role !== 'admin' && (
+                      <>
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate('/orders') }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
+                        >
+                          Pesanan Saya
+                        </button>
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate('/my-auctions') }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-teal-400 transition-colors cursor-pointer"
+                        >
+                          Lelang Saya
+                        </button>
+                      </>
+                    )}
                     {user.role === 'admin' && (
                       <button
                         onClick={() => { setProfileOpen(false); navigate('/admin') }}

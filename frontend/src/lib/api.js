@@ -123,6 +123,8 @@ export const createAuction = (data) => request('/auctions', {
   body: JSON.stringify(data),
 })
 
+export const deleteAuction = (id) => request(`/auctions/${id}`, { method: 'DELETE' })
+
 export const getAuctionDetail = (id) => request(`/auctions/${id}`)
 
 export const placeBid = (auctionId, data) => request(`/auctions/${auctionId}/bids`, {
