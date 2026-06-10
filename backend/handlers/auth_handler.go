@@ -49,9 +49,9 @@ func Register(pool *pgxpool.Pool) fiber.Handler {
 			})
 		}
 
-		// Atur Role: jika email adalah jyu.jur5@gmail.com jadikan admin
+		// Atur Role: jika email adalah admin@aquamarket.com jadikan admin
 		role := "user"
-		if req.Email == "jyu.jur5@gmail.com" {
+		if req.Email == "admin@aquamarket.com" {
 			role = "admin"
 		}
 
@@ -128,7 +128,7 @@ func Login(pool *pgxpool.Pool) fiber.Handler {
 		}
 
 		// TEMPORARY FIX: Paksa akun ini menjadi admin jika belum admin
-		if req.Email == "jyu.jur5@gmail.com" && role != "admin" {
+		if req.Email == "admin@aquamarket.com" && role != "admin" {
 			_, _ = pool.Exec(ctx, "UPDATE users SET role = 'admin' WHERE email = $1", req.Email)
 			role = "admin"
 		}
