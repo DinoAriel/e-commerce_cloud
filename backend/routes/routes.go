@@ -53,6 +53,9 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	products.Post("", auth, productHandler.CreateProduct)
 	products.Put("/:id", auth, productHandler.UpdateProduct)
 	products.Delete("/:id", auth, productHandler.DeleteProduct)
+	
+	// Temporary admin route to clear products
+	products.Delete("/admin/truncate", auth, productHandler.TruncateProducts)
 
 	// Categories (GET public, write needs auth)
 	categories := app.Group("/api/categories")

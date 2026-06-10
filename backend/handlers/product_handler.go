@@ -238,3 +238,18 @@ func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 
 	return models.Success(c, fiber.Map{"message": "Produk berhasil dihapus"})
 }
+
+func (h *ProductHandler) TruncateProducts(c *fiber.Ctx) error {
+	// Require admin role
+	role := c.Locals("role")
+	if role != "admin" {
+		return models.Error(c, "Hanya admin yang dapat mengosongkan produk", 403)
+	}
+
+	_, err := h.DB.Exec(c.Context(), `TRUNCATE TABLE products CASCADE`)
+	if err != nil {
+		return models.Error(c, "Gagal mengosongkan tabel produk: "+err.Error(), 500)
+	}
+
+	return models.Success(c, fiber.Map{"message": "Semua produk berhasil dihapus"})
+}
