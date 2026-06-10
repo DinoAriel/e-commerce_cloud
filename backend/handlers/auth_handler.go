@@ -162,12 +162,14 @@ func Login(pool *pgxpool.Pool) fiber.Handler {
 		return c.JSON(fiber.Map{
 			"success": true,
 			"message": "Login berhasil",
-			"session": fiber.Map{
-				"access_token": t,
-				"user": fiber.Map{
-					"id":    userID,
-					"email": req.Email,
-					"role":  role,
+			"data": fiber.Map{
+				"session": fiber.Map{
+					"access_token": t,
+					"user": fiber.Map{
+						"id":    userID,
+						"email": req.Email,
+						"role":  role,
+					},
 				},
 			},
 		})
