@@ -25,8 +25,10 @@ func (h *ProfileHandler) GetProfile(c *fiber.Ctx) error {
 
 	var p models.Profile
 	err := h.DB.QueryRow(c.Context(), `
-		SELECT id, username, full_name, phone_number, address, avatar_url, role, gender, birth_date, created_at
-		FROM profiles WHERE id = $1`, id,
+		SELECT p.id, p.username, p.full_name, p.phone, p.address, p.avatar_url, u.role, p.gender, p.birth_date, p.created_at
+		FROM profiles p
+		JOIN users u ON u.id = p.id
+		WHERE p.id = $1`, id,
 	).Scan(&p.ID, &p.Username, &p.FullName, &p.Phone, &p.Address, &p.AvatarURL, &p.Role, &p.Gender, &p.BirthDate, &p.CreatedAt)
 
 	if err != nil {
@@ -74,15 +76,15 @@ func (h *ProfileHandler) UpdateProfile(c *fiber.Ctx) error {
 		UPDATE profiles SET
 			username = COALESCE($1, username),
 			full_name = COALESCE($2, full_name),
-			phone_number = COALESCE($3, phone_number),
+			phone = COALESCE($3, phone),
 			address = COALESCE($4, address),
 			avatar_url = COALESCE($5, avatar_url),
 			gender = COALESCE($6, gender),
 			birth_date = COALESCE($7, birth_date)
 		WHERE id = $8
-		RETURNING id, username, full_name, phone_number, address, avatar_url, role, gender, birth_date, created_at`,
+		RETURNING id, username, full_name, phone, address, avatar_url, gender, birth_date, created_at`,
 		input.Username, input.FullName, input.Phone, input.Address, input.AvatarURL, input.Gender, input.BirthDate, id,
-	).Scan(&p.ID, &p.Username, &p.FullName, &p.Phone, &p.Address, &p.AvatarURL, &p.Role, &p.Gender, &p.BirthDate, &p.CreatedAt)
+	).Scan(&p.ID, &p.Username, &p.FullName, &p.Phone, &p.Address, &p.AvatarURL, &p.Gender, &p.BirthDate, &p.CreatedAt)
 
 	if err != nil {
 		return models.Error(c, "Profil tidak ditemukan atau gagal update", 404)
