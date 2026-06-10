@@ -49,15 +49,18 @@ export default function MyAuctions() {
 
     if (loading) {
         return (
-            <div className="pt-24 pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white min-h-screen">
-                <p className="text-center mt-10">Memuat riwayat lelang Anda...</p>
+            <div className="min-h-screen bg-slate-950 font-sans">
+                <div className="pt-24 pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white min-h-screen">
+                    <p className="text-center mt-10">Memuat riwayat lelang Anda...</p>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="pt-24 pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen text-slate-200">
-            <h1 className="text-3xl font-bold text-white mb-8 border-b border-white/10 pb-4">Riwayat Lelang Saya</h1>
+        <div className="min-h-screen bg-slate-950 font-sans">
+            <div className="pt-24 pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-slate-200">
+                <h1 className="text-3xl font-bold text-white mb-8 border-b border-white/10 pb-4">Riwayat Lelang Saya</h1>
 
             {auctions.length === 0 ? (
                 <div className="bg-slate-900/40 rounded-2xl p-10 text-center border border-slate-800/80 shadow-xl">
@@ -121,6 +124,7 @@ export default function MyAuctions() {
                     })}
                 </div>
             )}
+            </div>
         </div>
     )
 }
