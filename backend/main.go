@@ -26,9 +26,11 @@ func main() {
 
 	// Auto-Migrate missing columns for orders table
 	migrationQueries := []string{
+		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS total_amount INT NOT NULL DEFAULT 0;",
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS rating INT;",
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS review TEXT;",
 		"ALTER TABLE orders ADD COLUMN IF NOT EXISTS snap_token TEXT;",
+		"ALTER TABLE order_items ADD COLUMN IF NOT EXISTS price INT NOT NULL DEFAULT 0;",
 	}
 	for _, q := range migrationQueries {
 		_, err := pool.Exec(context.Background(), q)
