@@ -91,6 +91,9 @@ export default function CheckoutPage() {
       }
       
       if (createdOrder && createdOrder.snap_token) {
+        // Kosongkan keranjang segera setelah order terbuat di backend
+        dispatch(clearCart())
+
         window.snap.pay(createdOrder.snap_token, {
           onSuccess: async function(result) {
             try {
@@ -100,16 +103,14 @@ export default function CheckoutPage() {
             }
             setSuccessMsg("Pembayaran Berhasil! Mengalihkan ke riwayat pesanan Anda...")
             setTimeout(() => {
-              dispatch(clearCart())
               navigate('/orders')
-            }, 6000)
+            }, 3000)
           },
           onPending: function(result) {
             setSuccessMsg("Menunggu Pembayaran! Mengalihkan ke riwayat pesanan Anda...")
             setTimeout(() => {
-              dispatch(clearCart())
               navigate('/orders')
-            }, 6000)
+            }, 3000)
           },
           onError: function(result) {
             setError("Pembayaran Gagal!")
