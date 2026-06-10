@@ -1,7 +1,10 @@
 const { Pool } = require('pg')
 
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:Aquamarket123!@ecommerce-db.cxakyk44ej9y.ap-southeast-2.rds.amazonaws.com:5432/postgres'
+  connectionString: 'postgresql://postgres:Aquamarket123!@ecommerce-db.cxakyk44ej9y.ap-southeast-2.rds.amazonaws.com:5432/postgres?sslmode=require',
+  ssl: {
+    rejectUnauthorized: false
+  }
 })
 
 async function resetProducts() {
