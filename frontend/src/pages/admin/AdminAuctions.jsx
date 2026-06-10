@@ -4,14 +4,25 @@ import { getAuctions, getProducts, placeBid, createAuction } from '../../lib/api
 // Helper for formatting price
 const fmtPrice = (price) => `Rp ${Number(price).toLocaleString('id-ID')}`
 
-// Custom countdown timer text
-function getCountdownText(endTimeStr) {
-  const diff = new Date(endTimeStr).getTime() - Date.now()
-  if (diff <= 0) return 'Berakhir'
-  
-  const h = Math.floor(diff / 3600000)
-  const m = Math.floor((diff % 3600000) / 60000)
-  return `${h}j ${m}m`
+function LiveCountdown({ endTimeStr }) {
+  const [timeLeft, setTimeLeft] = useState('')
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(endTimeStr).getTime() - Date.now()
+      if (diff <= 0) return 'Berakhir'
+      const d = Math.floor(diff / 86400000)
+      const h = Math.floor((diff % 86400000) / 3600000)
+      const m = Math.floor((diff % 3600000) / 60000)
+      if (d > 0) return `${d}h ${h}j`
+      return `${h}j ${m}m`
+    }
+    setTimeLeft(calc())
+    const id = setInterval(() => setTimeLeft(calc()), 60000) // Update every minute
+    return () => clearInterval(id)
+  }, [endTimeStr])
+
+  return <span>{timeLeft}</span>
 }
 
 export default function AdminAuctions() {
@@ -220,7 +231,7 @@ export default function AdminAuctions() {
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 mb-1 tracking-wider uppercase">Sisa Waktu</p>
-                    <p className="font-bold text-slate-200 text-base">{getCountdownText(auction.end_time)}</p>
+                    <p className="font-bold text-slate-200 text-base"><LiveCountdown endTimeStr={auction.end_time} /></p>
                   </div>
                 </div>
                 
