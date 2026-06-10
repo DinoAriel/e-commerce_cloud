@@ -223,7 +223,7 @@ export default function AuctionsPage() {
                 </div>
             )}
 
-            {bidError && (
+            {bidError && !activeBidAuction && (
                 <div className="px-6 md:px-16 pb-4">
                     <div className="bg-red-950/20 border border-red-900/50 rounded-xl p-4 flex items-center justify-between">
                         <p className="text-red-400 text-sm">{bidError}</p>
@@ -510,6 +510,13 @@ export default function AuctionsPage() {
                         </div>
 
                         <form onSubmit={submitBid} className="p-6 space-y-4">
+                            {bidError && (
+                                <div className="bg-red-950/40 border border-red-900/50 rounded-xl p-3 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                                    <p className="text-red-400 text-xs font-semibold">{bidError}</p>
+                                    <button type="button" onClick={() => setBidError(null)} className="text-red-400 hover:text-red-300 text-lg leading-none cursor-pointer">&times;</button>
+                                </div>
+                            )}
+
                             <div className="text-center">
                                 <p className="text-sm font-bold text-white mb-1">{activeBidAuction.products?.name || activeBidAuction.product?.name}</p>
                                 <p className="text-xs text-slate-400">
