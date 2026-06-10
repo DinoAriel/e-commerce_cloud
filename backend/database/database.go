@@ -50,14 +50,7 @@ func Connect(cfg config.Config) *pgxpool.Pool {
 			slug TEXT UNIQUE NOT NULL
 		);
 
-		-- Force recreate products to fix schema!
-		DROP TABLE IF EXISTS cart_items CASCADE;
-		DROP TABLE IF EXISTS order_items CASCADE;
-		DROP TABLE IF EXISTS auctions CASCADE;
-		DROP TABLE IF EXISTS bids CASCADE;
-		DROP TABLE IF EXISTS products CASCADE;
-
-		CREATE TABLE products (
+		CREATE TABLE IF NOT EXISTS products (
 			id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 			name TEXT NOT NULL,
 			description TEXT,
