@@ -33,6 +33,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('user_data')
+    localStorage.removeItem('aquamarket_cart')
     setSession(null)
     setUser(null)
     window.location.href = '/login'
