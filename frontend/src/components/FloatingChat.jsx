@@ -11,6 +11,19 @@ export default function FloatingChat() {
   const [isConnected, setIsConnected] = useState(false)
   const ws = useRef(null)
   const messagesEndRef = useRef(null)
+  const chatRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (chatRef.current && !chatRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   useEffect(() => {
     // Open chat with context if requested by CustomEvent (e.g., from ProductDetail)
@@ -112,7 +125,7 @@ export default function FloatingChat() {
   if (!user || user.role === 'admin') return null
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+    <div ref={chatRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
       {/* Chat Button */}
       {!isOpen && (
         <button

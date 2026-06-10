@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useAuth } from '../lib/auth'
@@ -15,6 +15,19 @@ export default function Navbar() {
   const cartCount = items.reduce((sum, item) => sum + item.qty, 0)
   const { user, logout } = useAuth()
   const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const handleLogout = async () => {
     logout()
@@ -125,7 +138,7 @@ export default function Navbar() {
           </button>
 
           {/* Profile */}
-          <div className="relative">
+          <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
               className="w-9 h-9 rounded-xl bg-slate-900 text-teal-400 flex items-center justify-center hover:bg-slate-800 transition-all"
