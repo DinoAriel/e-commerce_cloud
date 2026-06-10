@@ -235,6 +235,45 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <div className="mt-12 bg-slate-900/40 rounded-[2.5rem] border border-slate-800/80 p-8 md:p-12 shadow-2xl">
+        <h3 className="text-2xl font-bold text-white mb-8 border-b border-slate-800 pb-4">Ulasan Pembeli</h3>
+        
+        {(!product.reviews || product.reviews.length === 0) ? (
+          <div className="text-center py-10 bg-slate-950/50 rounded-2xl border border-slate-800/50">
+            <p className="text-4xl mb-3">⭐</p>
+            <p className="text-slate-400 font-medium">Belum ada ulasan untuk ikan ini.</p>
+            <p className="text-slate-500 text-sm mt-1">Jadilah yang pertama membeli dan memberikan ulasan!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {product.reviews.map((review, idx) => (
+              <div key={idx} className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-700 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 font-bold">
+                      {review.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-sm">{review.username}</p>
+                      <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
+                  </div>
+                  <div className="flex text-amber-400 text-sm">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span key={i} className={i < review.rating ? 'opacity-100' : 'opacity-20'}>★</span>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-slate-300 text-sm leading-relaxed italic">
+                  "{review.comment || 'Pembeli tidak meninggalkan pesan ulasan.'}"
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

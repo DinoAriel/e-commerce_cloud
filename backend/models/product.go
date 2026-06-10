@@ -19,6 +19,14 @@ type Product struct {
 type ProductWithCategory struct {
 	Product
 	Category *CategoryInfo `json:"categories"`
+	Reviews  []Review      `json:"reviews"`
+}
+
+type Review struct {
+	Rating    int       `json:"rating"`
+	Comment   string    `json:"comment"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type CategoryInfo struct {
