@@ -72,7 +72,7 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 		input.UserID, totalAmount, input.ShippingAddress,
 	).Scan(&order.ID, &order.UserID, &order.TotalAmount, &order.Status, &order.ShippingAddress, &order.SnapToken, &order.Rating, &order.Review, &order.CreatedAt)
 	if err != nil {
-		return models.Error(c, "Gagal membuat order", 500)
+		return models.Error(c, "Gagal membuat order: "+err.Error(), 500)
 	}
 
 	var orderItems []models.OrderItemWithProduct
@@ -85,7 +85,7 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 			order.ID, ci.ProductID, ci.Quantity, ci.Price,
 		).Scan(&oi.ID, &oi.OrderID, &oi.ProductID, &oi.Quantity, &oi.Price)
 		if err != nil {
-			return models.Error(c, "Gagal membuat order item", 500)
+			return models.Error(c, "Gagal membuat order item: "+err.Error(), 500)
 		}
 
 		err = tx.QueryRow(c.Context(), `

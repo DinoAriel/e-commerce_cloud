@@ -60,7 +60,7 @@ func Setup(app *fiber.App, pool *pgxpool.Pool, cfg config.Config) {
 	// Categories (GET public, write needs auth)
 	categories := app.Group("/api/categories")
 	categories.Get("/admin/schema", func(c *fiber.Ctx) error {
-		rows, err := pool.Query(c.Context(), "SELECT column_name FROM information_schema.columns WHERE table_name = 'orders'")
+		rows, err := pool.Query(c.Context(), "SELECT column_name FROM information_schema.columns WHERE table_name = 'order_items'")
 		if err != nil {
 			return c.JSON(fiber.Map{"error": err.Error()})
 		}
