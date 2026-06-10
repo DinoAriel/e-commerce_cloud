@@ -1,8 +1,13 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-const { Pool } = require('pg')
+require('dotenv').config();
+const { Pool } = require('pg');
 
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:Aquamarket123!@ecommerce-db.cxakyk44ej9y.ap-southeast-2.rds.amazonaws.com:5432/postgres',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   ssl: {
     rejectUnauthorized: false
   }
