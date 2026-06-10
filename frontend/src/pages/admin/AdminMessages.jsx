@@ -162,7 +162,7 @@ export default function AdminMessages() {
             <div className="text-center text-slate-500 text-sm mt-10">Belum ada obrolan</div>
           ) : chats.map(chat => {
             const isActive = chat.id === activeChatId
-            const username = chat.user.full_name || chat.user.username || 'User'
+            const username = chat.user?.full_name || chat.user?.username || 'User'
             const initials = username.substring(0, 2).toUpperCase()
             const timeStr = chat.last_message ? new Date(chat.last_message.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''
 
@@ -177,8 +177,8 @@ export default function AdminMessages() {
               >
                 <div className="flex gap-3">
                   <div className="relative shrink-0">
-                    {chat.user.avatar_url ? (
-                      <img src={chat.user.avatar_url} alt={chat.user.username} className="w-10 h-10 rounded-full object-cover" />
+                    {chat.user?.avatar_url ? (
+                      <img src={chat.user.avatar_url} alt={chat.user?.username} className="w-10 h-10 rounded-full object-cover" />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-teal-400 font-bold flex items-center justify-center text-sm">
                         {initials}
@@ -192,7 +192,7 @@ export default function AdminMessages() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-0.5">
-                      <h4 className={`font-bold text-sm truncate ${isActive ? 'text-teal-300' : (chat.unread_count > 0 ? 'text-white' : 'text-slate-300')}`}>{chat.user.full_name || chat.user.username}</h4>
+                      <h4 className={`font-bold text-sm truncate ${isActive ? 'text-teal-300' : (chat.unread_count > 0 ? 'text-white' : 'text-slate-300')}`}>{chat.user?.full_name || chat.user?.username || 'User'}</h4>
                       <span className="text-[9px] font-bold text-slate-600 mt-0.5 shrink-0 ml-2">{timeStr}</span>
                     </div>
                     <p className={`text-xs truncate ${isActive ? 'text-teal-400 font-semibold' : (chat.unread_count > 0 ? 'text-slate-300 font-semibold' : 'text-slate-500')}`}>
@@ -214,16 +214,16 @@ export default function AdminMessages() {
             <>
               <div className="flex items-center gap-3">
                 <div className="relative shrink-0">
-                  {activeChat.user.avatar_url ? (
-                    <img src={activeChat.user.avatar_url} alt={activeChat.user.username} className="w-10 h-10 rounded-full object-cover" />
+                  {activeChat.user?.avatar_url ? (
+                    <img src={activeChat.user.avatar_url} alt={activeChat.user?.username} className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-teal-400 font-bold flex items-center justify-center text-sm">
-                      {(activeChat.user.full_name || activeChat.user.username || 'User').substring(0, 2).toUpperCase()}
+                      {(activeChat.user?.full_name || activeChat.user?.username || 'User').substring(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-sm">{activeChat.user.full_name || activeChat.user.username}</h3>
+                  <h3 className="font-bold text-white text-sm">{activeChat.user?.full_name || activeChat.user?.username || 'User'}</h3>
                   <p className="text-[10px] font-bold text-teal-400 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
                     Online
@@ -265,11 +265,11 @@ export default function AdminMessages() {
                       {/* Avatar */}
                       <div className="shrink-0 mt-auto">
                         {!isAdmin ? (
-                          activeChat.user.avatar_url ? (
-                            <img src={activeChat.user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shadow-sm border border-slate-700" />
+                          activeChat?.user?.avatar_url ? (
+                            <img src={activeChat?.user?.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shadow-sm border border-slate-700" />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-teal-400 font-bold flex items-center justify-center text-[10px]">
-                              {(activeChat.user.full_name || activeChat.user.username || 'User').substring(0, 2).toUpperCase()}
+                              {(activeChat?.user?.full_name || activeChat?.user?.username || 'User').substring(0, 2).toUpperCase()}
                             </div>
                           )
                         ) : (
