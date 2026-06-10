@@ -241,7 +241,7 @@ func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 
 func (h *ProductHandler) TruncateProducts(c *fiber.Ctx) error {
 	// Require admin role
-	role := c.Locals("role")
+	role := c.Locals("user_role")
 	if role != "admin" {
 		return models.Error(c, "Hanya admin yang dapat mengosongkan produk", 403)
 	}
