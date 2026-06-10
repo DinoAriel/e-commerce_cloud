@@ -126,20 +126,24 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 	// Fetch Reviews
 	p.Reviews = make([]models.Review, 0)
 	rows, err := h.DB.Query(c.Context(), `
-		SELECT o.rating, COALESCE(o.review, ''), COALESCE(pr.full_name, pr.username, 'User'), o.created_at
+		SELECT o.rating, COALESCE(o.review, ''), COALESCE(NULLIF(pr.full_name, ''), NULLIF(pr.username, ''), 'User'), o.created_at
 		FROM orders o
 		JOIN order_items oi ON o.id = oi.order_id
 		JOIN profiles pr ON o.user_id = pr.id
-		WHERE oi.product_id = $1 AND o.rating IS NOT NULL
+		WHERE oi.product_id = $1::uuid AND o.rating IS NOT NULL
 		ORDER BY o.created_at DESC`, id)
 	if err == nil {
 		defer rows.Close()
 		for rows.Next() {
 			var r models.Review
-			if err := rows.Scan(&r.Rating, &r.Comment, &r.Username, &r.CreatedAt); err == nil {
+			if scanErr := rows.Scan(&r.Rating, &r.Comment, &r.Username, &r.CreatedAt); scanErr == nil {
 				p.Reviews = append(p.Reviews, r)
+			} else {
+				fmt.Printf("Error scanning review: %v\n", scanErr)
 			}
 		}
+	} else {
+		fmt.Printf("Error querying reviews: %v\n", err)
 	}
 
 	return models.Success(c, p)
